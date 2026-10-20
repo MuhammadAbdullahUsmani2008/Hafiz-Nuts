@@ -63,6 +63,12 @@ export const DEFAULT_PRODUCT_SLUG = "honey-nut-mix-200g";
  */
 export const WHATSAPP_NUMBER = "923047677019";
 
+/**
+ * Canonical production origin, without a trailing slash. Used for absolute
+ * URLs in metadata, `robots.txt`, and the sitemap.
+ */
+export const SITE_URL = "https://hafiznuts.com";
+
 export const PRODUCTS: readonly Product[] = [
   {
     id: "hn-mix-30g",

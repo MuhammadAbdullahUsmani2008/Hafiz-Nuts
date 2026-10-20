@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ProductConfigurator, {
   type PackOption,
 } from "@/components/ProductConfigurator";
-import { formatPkr, PRODUCTS } from "@/lib/catalog";
+import { formatPkr, PRODUCTS, SITE_URL } from "@/lib/catalog";
 import { resolvePublicImage } from "@/lib/resolveImage";
 
 /**
@@ -35,9 +35,39 @@ export async function generateMetadata({
 
   if (!product) return { title: "Product Not Found | HAFIZ NUTS" };
 
+  const title = `Premium Honey & Nut Mix (${product.size}) | HAFIZ NUTS`;
+  const description = `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`;
+  const url = `${SITE_URL}/products/${product.slug}`;
+
+  /*
+   * Next merges `openGraph` and `twitter` shallowly: setting either here
+   * replaces the root layout's object wholesale rather than extending it. So
+   * `siteName`, `locale`, and `type` are restated, and the share image is this
+   * pack's own photograph instead of the site-wide card - without these, a
+   * shared product link would preview with no image or site name.
+   */
+  const image = resolvePublicImage(product.imageCandidates) ?? product.image;
+  const imageAlt = `Premium Honey & Nut Mix - ${product.size} pack`;
+
   return {
-    title: `Premium Honey & Nut Mix (${product.size}) | HAFIZ NUTS`,
-    description: `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Hafiz Nuts",
+      images: [{ url: `${SITE_URL}${image}`, alt: imageAlt }],
+      locale: "en_PK",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${SITE_URL}${image}`],
+    },
   };
 }
 

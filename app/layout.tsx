@@ -4,6 +4,7 @@ import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { CartProvider } from "@/context/CartContext";
+import { SITE_URL } from "@/lib/catalog";
 import "./globals.css";
 
 /**
@@ -37,10 +38,46 @@ const caveat = Caveat({
   preload: false,
 });
 
+/*
+ * `metadataBase` lets any route's metadata use relative URLs; the OG and
+ * Twitter images below are absolute already, so they ignore it.
+ */
 export const metadata: Metadata = {
-  title: "HAFIZ NUTS | Premium Dry Fruits",
+  metadataBase: new URL(SITE_URL),
+  title: "Hafiz Nuts | Premium Dry Fruits Mixed with Honey",
   description:
-    "Hand-picked almonds, pistachios, cashews and dates, sourced from single-origin growers and delivered fresh.",
+    "Discover the finest quality dry fruits blended with pure honey from Hafiz Nuts. 100% natural, healthy, and premium packaging delivered all over Pakistan.",
+  keywords: [
+    "dry fruits",
+    "honey",
+    "healthy snacks",
+    "Hafiz Nuts",
+    "natural nuts",
+    "cash on delivery Pakistan",
+  ],
+  openGraph: {
+    title: "Hafiz Nuts | Premium Dry Fruits & Honey",
+    description:
+      "Shop 100% natural dry fruits mixed with honey. Premium quality delivered across Pakistan.",
+    url: SITE_URL,
+    siteName: "Hafiz Nuts",
+    images: [
+      {
+        url: `${SITE_URL}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Hafiz Nuts Products",
+      },
+    ],
+    locale: "en_PK",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hafiz Nuts | Premium Dry Fruits & Honey",
+    description: "Shop 100% natural dry fruits mixed with honey.",
+    images: [`${SITE_URL}/og-image.jpg`],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
