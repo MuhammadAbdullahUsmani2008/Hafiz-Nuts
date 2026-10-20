@@ -46,7 +46,8 @@ export async function generateMetadata({
     description: `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`,
     path: `/products/${product.slug}`,
     image: {
-      path: resolvePublicImage(product.imageCandidates) ?? product.image,
+      /* No photograph yet -> the site card, never a path that 404s. */
+      path: resolvePublicImage(product.imageCandidates) ?? "/og-image.jpg",
       alt: `Premium Honey & Nut Mix - ${product.size} pack`,
     },
   });
@@ -74,7 +75,7 @@ export default async function ProductPage({
 
   return (
     <main className="flex-1 bg-[#FAF6F0] px-4 py-8 md:px-8 md:py-12">
-      <JsonLd data={productJsonLd(product, image ?? product.image)} />
+      <JsonLd data={productJsonLd(product, image ?? "/og-image.jpg")} />
 
       {/* Clears the fixed header, which overlays the top of the viewport. */}
       <div className="mx-auto max-w-6xl pt-16 md:pt-8">

@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
-import { formatPkr } from "@/lib/catalog";
+import { DELIVERY_FEE_PKR, formatPkr } from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - slide-over cart drawer.
@@ -279,7 +279,7 @@ export default function CartDrawer() {
             </div>
 
             <p className="mt-1 text-[11px] text-[#8C5228]">
-              Shipping and discounts are calculated at checkout.
+              Flat {formatPkr(DELIVERY_FEE_PKR)} delivery is added at checkout.
             </p>
 
             <Link

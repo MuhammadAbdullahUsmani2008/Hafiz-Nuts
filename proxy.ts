@@ -27,9 +27,10 @@ import { PRODUCTS } from "@/lib/catalog";
  *
  * ## What is *not* handled here
  *
- * `/products` and `/products/premium-honey-nut-mix` are deliberate redirects
- * owned by their own page files (307s). This guard deliberately passes them
- * through untouched so the redirect logic lives in exactly one place.
+ * `/products` is the full catalog listing and has no slug to check.
+ * `/products/premium-honey-nut-mix` is a deliberate 307 redirect owned by its
+ * own page file; this guard passes it through untouched so the redirect logic
+ * lives in exactly one place.
  *
  * `lib/catalog.ts` is safe to import: it holds no `node:fs` or `window`
  * access, so it evaluates cleanly in the proxy's runtime.
@@ -44,7 +45,7 @@ const RESERVED_SEGMENTS = new Set(["premium-honey-nut-mix"]);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  /* `/products` - no slug to validate, let the index page redirect it. */
+  /* `/products` - the listing page, no slug to validate. */
   const slug = pathname.replace(/^\/products\/?/, "").replace(/\/+$/, "");
   if (!slug) return NextResponse.next();
 

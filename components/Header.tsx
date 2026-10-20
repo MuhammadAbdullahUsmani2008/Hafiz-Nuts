@@ -37,7 +37,8 @@ import { useScrolled } from "@/hooks/useScrolled";
 
 const NAV_LINKS = [
   { href: "/#home", label: "Home" },
-  { href: "/#products", label: "Products" },
+  /* The full listing page, not the homepage's featured section. */
+  { href: "/products", label: "Products" },
   { href: "/#bundles", label: "Bundles" },
   { href: "/#why-us", label: "Why Us" },
   { href: "/#reviews", label: "Reviews" },

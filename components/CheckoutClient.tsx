@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
-import { formatPkr, WHATSAPP_NUMBER } from "@/lib/catalog";
+import {
+  DELIVERY_FEE_PKR,
+  EASYPAISA_ACCOUNT,
+  formatPkr,
+  WHATSAPP_NUMBER,
+} from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - checkout.
@@ -91,11 +96,12 @@ const PAYMENT_METHODS = {
 
 type PaymentMethod = keyof typeof PAYMENT_METHODS;
 
-/** EasyPaisa receiving account, shown once the customer picks this method. */
+/**
+ * EasyPaisa receiving account, shown once the customer picks this method. The
+ * account itself comes from the catalog, which the Terms page also quotes.
+ */
 const EASYPAISA = {
-  accountName: "Hafiz Abdul Rehman",
-  accountNumber: "03480660406",
-  wallet: "EasyPaisa",
+  ...EASYPAISA_ACCOUNT,
   instructions:
     "Please complete the transfer to the EasyPaisa account above and attach a screenshot of your payment receipt in WhatsApp after confirming your order.",
 } as const;
@@ -156,6 +162,7 @@ function buildOrderMessage(input: {
   paymentMethod: PaymentMethod;
   items: readonly { name: string; size: string; quantity: number; pricePkr: number }[];
   subtotalPkr: number;
+  deliveryFeePkr: number;
 }): string {
   const name = oneLine(input.name);
   const phone = oneLine(input.phone);
@@ -185,7 +192,9 @@ function buildOrderMessage(input: {
         `• ${item.name} (${item.size}) x ${item.quantity} | ${formatPkr(item.pricePkr * item.quantity)}`,
     ),
     "",
-    `*Total Amount:* ${formatPkr(input.subtotalPkr)} (Delivery available all over Pakistan)`,
+    `• Subtotal: ${formatPkr(input.subtotalPkr)}`,
+    `• Delivery: ${formatPkr(input.deliveryFeePkr)}`,
+    `*Total Amount:* ${formatPkr(input.subtotalPkr + input.deliveryFeePkr)}`,
   );
 
   /*
@@ -207,6 +216,14 @@ function buildOrderMessage(input: {
 
 export default function CheckoutClient() {
   const { items, subtotalPkr, totalItems, clearCart } = useCart();
+
+  /*
+   * The flat delivery fee from the Shipping & Delivery Policy. It is shown and
+   * added here, before the customer confirms, because the policy promises the
+   * full payable total up front - no charge appears for the first time on
+   * WhatsApp.
+   */
+  const totalPkr = subtotalPkr + DELIVERY_FEE_PKR;
 
   const [form, setForm] = useState({
     name: "",
@@ -237,7 +254,7 @@ export default function CheckoutClient() {
    */
   const [receipt, setReceipt] = useState<null | {
     itemCount: number;
-    subtotalPkr: number;
+    totalPkr: number;
     paymentMethod: PaymentMethod;
     whatsappUrl: string;
   }>(null);
@@ -282,6 +299,7 @@ export default function CheckoutClient() {
       paymentMethod,
       items,
       subtotalPkr,
+      deliveryFeePkr: DELIVERY_FEE_PKR,
     });
 
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -297,7 +315,7 @@ export default function CheckoutClient() {
 
     setReceipt({
       itemCount: totalItems,
-      subtotalPkr,
+      totalPkr,
       paymentMethod,
       whatsappUrl,
     });
@@ -331,7 +349,7 @@ export default function CheckoutClient() {
 
         <p className="mt-3 text-xs font-semibold text-[#8C5228]">
           {receipt.itemCount} item{receipt.itemCount === 1 ? "" : "s"} ·{" "}
-          {formatPkr(receipt.subtotalPkr)}{" "}
+          {formatPkr(receipt.totalPkr)}{" "}
           ({PAYMENT_METHODS[receipt.paymentMethod].messageLabel})
         </p>
 
@@ -721,10 +739,8 @@ export default function CheckoutClient() {
 
               <div className="flex items-baseline justify-between gap-4">
                 <span className="text-[#5C4333]">Delivery Charge</span>
-                <span className="text-right text-[11px] font-medium text-[#8C5228]">
-                  Calculated on WhatsApp
-                  <br />
-                  We deliver all over Pakistan via standard courier services
+                <span className="font-semibold text-[#2A170D]">
+                  {formatPkr(DELIVERY_FEE_PKR)}
                 </span>
               </div>
 
@@ -733,11 +749,13 @@ export default function CheckoutClient() {
                   Grand Total
                 </span>
                 <span className="text-xl font-bold text-[#7A451F]">
-                  {formatPkr(subtotalPkr)}
+                  {formatPkr(totalPkr)}
                 </span>
               </div>
 
               <p className="text-[11px] text-[#8C5228]">
+                Flat delivery fee per order, all over Pakistan. Estimated
+                delivery 5–7 business days.{" "}
                 {paymentMethod === "cod"
                   ? "Payable in cash on delivery."
                   : "Transfer to the EasyPaisa account, then send the receipt on WhatsApp."}

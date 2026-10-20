@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 
-import { formatPkr, SITE_URL, WHATSAPP_NUMBER, type Product } from "@/lib/catalog";
+import {
+  CONTACT_EMAIL,
+  formatPkr,
+  SITE_URL,
+  WHATSAPP_NUMBER,
+  type Product,
+} from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - shared SEO metadata and structured data.
@@ -84,10 +90,9 @@ export function pageMetadata({
 /* -------------------------------------------------------------------------- */
 
 /*
- * Business details, matching what `ContactSection` and `Footer` show. Kept
- * here rather than imported from those components because they are client /
- * presentational modules; if the phone, email, or address changes, update
- * both places.
+ * Business details. Phone and email come from `lib/catalog.ts`, the same
+ * constants `ContactSection` and the policy pages read; the street address
+ * also appears in `ContactSection` and must be updated in both places.
  */
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 
@@ -102,7 +107,7 @@ export function organizationJsonLd() {
     image: DEFAULT_OG_IMAGE.url,
     description:
       "Premium dry fruits mixed with pure honey, delivered across Pakistan with Cash on Delivery.",
-    email: "info@hafiznuts.com",
+    email: CONTACT_EMAIL,
     telephone: `+${WHATSAPP_NUMBER}`,
     address: {
       "@type": "PostalAddress",
@@ -116,7 +121,7 @@ export function organizationJsonLd() {
       "@type": "ContactPoint",
       contactType: "customer service",
       telephone: `+${WHATSAPP_NUMBER}`,
-      email: "info@hafiznuts.com",
+      email: CONTACT_EMAIL,
       areaServed: "PK",
       availableLanguage: ["en", "ur"],
     },
@@ -136,6 +141,26 @@ export function websiteJsonLd() {
     url: SITE_URL,
     inLanguage: "en-PK",
     publisher: { "@id": ORGANIZATION_ID },
+  };
+}
+
+/**
+ * `ItemList` for the `/products` listing - one entry per pack page, in
+ * catalog order, so search engines read the page as a product collection.
+ */
+export function productListJsonLd(products: readonly Product[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Hafiz Nuts - All Products",
+    url: `${SITE_URL}/products`,
+    numberOfItems: products.length,
+    itemListElement: products.map((product, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: `Premium Honey & Nut Mix (${product.size})`,
+      url: `${SITE_URL}/products/${product.slug}`,
+    })),
   };
 }
 
@@ -182,7 +207,13 @@ export function productJsonLd(product: Product, imagePath: string) {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-          { "@type": "ListItem", position: 2, name, item: url },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "All Products",
+            item: `${SITE_URL}/products`,
+          },
+          { "@type": "ListItem", position: 3, name, item: url },
         ],
       },
     ],

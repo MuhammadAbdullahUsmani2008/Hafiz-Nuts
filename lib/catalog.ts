@@ -18,7 +18,7 @@ export type Product = {
   /** Stable identifier - also the cart line-item key. */
   id: string;
   name: string;
-  /** Reserved for future `/products/[slug]` detail routes. */
+  /** URL segment of the detail page: `/products/[slug]`. */
   slug: string;
   /** Display weight, e.g. "30g". */
   size: string;
@@ -33,6 +33,8 @@ export type Product = {
   imageCandidates: readonly string[];
   description: string;
   inStock: boolean;
+  /** Shown in the homepage grid; every product is listed on `/products`. */
+  featured: boolean;
 };
 
 export type Bundle = {
@@ -58,10 +60,42 @@ export type Bundle = {
 export const DEFAULT_PRODUCT_SLUG = "honey-nut-mix-200g";
 
 /**
+ * Stand-in for a cart line whose pack has no photograph in `public/` yet.
+ * `Product.image` cannot serve here: it is one of the candidates that
+ * `resolvePublicImage` already failed to find, so it would render broken.
+ */
+export const PLACEHOLDER_IMAGE = "/logo.png";
+
+/**
  * Canonical WhatsApp order line. The same number the contact section dials, in
  * international form without the `+`, which is what `wa.me` expects.
  */
 export const WHATSAPP_NUMBER = "923047677019";
+
+/** The same number in the local form shown to customers. */
+export const CONTACT_PHONE = "03047677019";
+
+export const CONTACT_EMAIL = "info@hafiznuts.com";
+
+/**
+ * Flat delivery charge per order, added at checkout. The Shipping & Delivery
+ * Policy and Terms quote this figure, so they read it from here too.
+ */
+export const DELIVERY_FEE_PKR = 300;
+
+/**
+ * EasyPaisa receiving account. Shown at checkout when that method is picked
+ * and quoted in the Terms; an EasyPaisa order ships only once the transfer
+ * receipt has been checked.
+ */
+export const EASYPAISA_ACCOUNT = {
+  accountName: "Hafiz Abdul Rehman",
+  accountNumber: "03480660406",
+  wallet: "EasyPaisa",
+} as const;
+
+/** Effective and last-updated date shown on every policy page. */
+export const POLICY_DATE = "October 20, 2026";
 
 /**
  * Canonical production origin, without a trailing slash. Used for absolute
@@ -81,6 +115,7 @@ export const PRODUCTS: readonly Product[] = [
     description:
       "Single-serve tub of our premium honey & nut mix - a handy first taste or an on-the-go snack.",
     inStock: true,
+    featured: false,
   },
   {
     id: "hn-mix-100g",
@@ -93,6 +128,7 @@ export const PRODUCTS: readonly Product[] = [
     description:
       "Everyday jar size for daily snacking, lunchboxes and the office desk.",
     inStock: true,
+    featured: true,
   },
   {
     id: "hn-mix-200g",
@@ -105,6 +141,20 @@ export const PRODUCTS: readonly Product[] = [
     description:
       "Shareable jar of the honey & nut mix - sized for families and gifting.",
     inStock: true,
+    featured: false,
+  },
+  {
+    id: "hn-mix-250g",
+    name: "250g Jar",
+    slug: "honey-nut-mix-250g",
+    size: "250g",
+    pricePkr: 800,
+    image: "/250g.jpg",
+    imageCandidates: ["250g-jar", "250g"],
+    description:
+      "A generous everyday jar of honey & dry fruit mix - a step up for regular snackers and small families.",
+    inStock: true,
+    featured: true,
   },
   {
     id: "hn-mix-500g",
@@ -115,8 +165,22 @@ export const PRODUCTS: readonly Product[] = [
     image: "/500g.jpg",
     imageCandidates: ["500g-jar", "500g"],
     description:
-      "Our largest jar - the best value for households and daily wellness routines.",
+      "Big household jar - great value for families and daily wellness routines.",
     inStock: true,
+    featured: true,
+  },
+  {
+    id: "hn-mix-1kg",
+    name: "1kg Jar",
+    slug: "honey-nut-mix-1kg",
+    size: "1kg",
+    pricePkr: 3000,
+    image: "/1kg.jpg",
+    imageCandidates: ["1kg-jar", "1kg"],
+    description:
+      "Our largest jar of honey & dry fruit mix - the best value per gram for big households, gifting and stocking up.",
+    inStock: true,
+    featured: true,
   },
 ];
 

@@ -42,7 +42,7 @@ const FEATURES: readonly Feature[] = [
   {
     icon: PackageCheck,
     title: "Sizes for Every Need",
-    copy: "From a handy 30g tub to a generous 500g pack, choose the size that suits your cravings, routine, or sharing occasions.",
+    copy: "From a handy 30g tub to a generous 1kg jar, choose the size that suits your cravings, routine, or sharing occasions.",
   },
   {
     icon: Wallet,

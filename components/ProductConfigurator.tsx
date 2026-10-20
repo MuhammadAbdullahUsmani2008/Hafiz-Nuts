@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
-import { formatPkr, type Product } from "@/lib/catalog";
+import { formatPkr, PLACEHOLDER_IMAGE, type Product } from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - product detail configurator.
@@ -84,7 +84,7 @@ export default function ProductConfigurator({
     name: product.name,
     size: product.size,
     pricePkr: product.pricePkr,
-    image: image ?? product.image,
+    image: image ?? PLACEHOLDER_IMAGE,
   };
 
   /* Adds the configured quantity and opens the drawer. */
@@ -129,8 +129,11 @@ export default function ProductConfigurator({
           Hover to zoom · tap a pack size below to switch
         </p>
 
-        {/* Thumbnail strip - one thumbnail per pack size, each a real link. */}
-        <ul className="mt-4 grid grid-cols-4 gap-3">
+        {/*
+          Thumbnail strip - one thumbnail per pack size, each a real link.
+          Six sizes: two rows of three on phones, one row from `sm`.
+        */}
+        <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
           {options.map((option) => {
             const active = option.slug === product.slug;
 
@@ -210,7 +213,7 @@ export default function ProductConfigurator({
 
         <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-[#1B4332]">
           <Truck className="h-3.5 w-3.5" aria-hidden />
-          Free delivery on eligible bundles · Cash on Delivery available
+          Delivery all over Pakistan · Cash on Delivery available
         </p>
 
         <hr className="my-6 border-[#E8DFC8]" />

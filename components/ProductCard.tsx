@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Package, ShoppingCart } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
-import { formatPkr, type Product } from "@/lib/catalog";
+import { formatPkr, PLACEHOLDER_IMAGE, type Product } from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - product card.
@@ -33,7 +33,8 @@ export default function ProductCard({
       name: product.name,
       size: product.size,
       pricePkr: product.pricePkr,
-      image: image ?? product.image,
+      /* No photograph yet - the cart shows the logo rather than a broken image. */
+      image: image ?? PLACEHOLDER_IMAGE,
     });
   };
 

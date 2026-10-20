@@ -1,40 +1,32 @@
-import { Leaf } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Leaf } from "lucide-react";
 
-import ProductCard from "@/components/ProductCard";
+import ProductGrid from "@/components/ProductGrid";
 import { PRODUCTS } from "@/lib/catalog";
-import { resolvePublicImage } from "@/lib/resolveImage";
 
 /**
- * HAFIZ NUTS - "Our Premium Products".
+ * HAFIZ NUTS - "Our Premium Products" (homepage).
  *
- * Server component: it resolves product photography from disk at prerender
- * time (see `lib/resolveImage.ts`), so it must not be marked `"use client"`.
- * The cards themselves are client components - they wire the cart's
- * `addItem()` - and receive the already-resolved image URL as a prop.
+ * Server component. Shows only the catalog entries flagged `featured` in
+ * `lib/catalog.ts`; the full range lives on `/products`, which the CTA below
+ * the grid links to. Changing what the homepage features is a one-flag edit
+ * in the catalog - nothing is selected inline here.
  *
- * The catalog (`lib/catalog.ts`) is the single source of truth for names,
- * sizes, and prices; nothing is duplicated inline here.
+ * The `id="products"` anchor stays on this section: the hero and the header's
+ * "Order Now" button jump to `/#products`. The header's "Products" nav link
+ * and the footer's "All Products" go to `/products` instead.
  *
  * Palette and fonts come from the surrounding design language: headings pick up
  * Playfair Display from the `h2`/`h3` rule in `globals.css`, body and prices fall
  * back to Inter.
- *
- * ## Why there is no "view all" link
- *
- * This grid renders the entire catalog - all four pack sizes, straight from
- * `PRODUCTS` - so there is nothing further to page through. The section used
- * to carry a "View All Products" link pointing at `#products`, its own id:
- * clicking it re-scrolled to the section you were already reading, and the
- * only other candidate (`/products`) is a deliberate 307 redirect to a single
- * pack's detail page, which would not honour the label either. With every
- * product already on screen, the honest fix was to drop the control.
  */
+
+const FEATURED = PRODUCTS.filter((product) => product.featured);
 
 export default function ProductsSection() {
   return (
     <section id="products" className="scroll-mt-24 bg-[#FDFBF7] py-16 md:py-20">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-        {/* Section header - centred; the grid below shows every catalog product. */}
         <div className="relative text-center">
           <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#FAF6F0] text-[#8C5228] ring-1 ring-[#E8DFC8]/70">
             <Leaf className="h-5 w-5" aria-hidden />
@@ -54,14 +46,21 @@ export default function ProductsSection() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {PRODUCTS.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              image={resolvePublicImage(product.imageCandidates)}
-            />
-          ))}
+        <ProductGrid products={FEATURED} className="mt-10 lg:grid-cols-4" />
+
+        {/*
+          Every size beyond the featured few lives on the full listing. Styled
+          exactly as the hero's primary "Explore Our Products" button, so the
+          site keeps one primary-button look.
+        */}
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/products"
+            className="flex items-center gap-2 rounded-full bg-[#7A451F] px-6 py-3 font-medium text-white shadow-md transition-all hover:bg-[#603516] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F]"
+          >
+            All Products
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
       </div>
     </section>

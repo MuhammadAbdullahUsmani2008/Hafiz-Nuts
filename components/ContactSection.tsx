@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { Send } from "lucide-react";
 
 import { WHATSAPP_NUMBER } from "@/lib/catalog";
 
@@ -67,27 +67,6 @@ const FIELD =
   "w-full rounded-md border border-[#E8DFC8] bg-white px-3 py-2 text-xs text-[#2A170D] placeholder:text-[#8C5228]/60 focus:ring-1 focus:ring-[#7A451F] focus:outline-none md:text-sm";
 
 const LABEL = "mb-1 block text-[11px] font-semibold text-[#5C4333]";
-
-const CONTACT = [
-  {
-    icon: Phone,
-    value: "+92 304 7677019",
-    href: "tel:+923047677019",
-    note: "Open 24/7",
-  },
-  {
-    icon: Mail,
-    value: "info@hafiznuts.com",
-    href: "mailto:info@hafiznuts.com",
-    note: "We reply within 24 hours",
-  },
-  {
-    icon: MapPin,
-    value: "Muslim Bazar, Rahim Yar Khan",
-    href: null,
-    note: null,
-  },
-] as const;
 
 const INQUIRY_TYPES = ["Retail Order", "Bulk Offer", "General Inquiry"] as const;
 
@@ -187,8 +166,13 @@ export default function ContactSection() {
       />
 
       <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 lg:grid-cols-12">
-        {/* Left - the pitch. */}
-        <div className="lg:col-span-4">
+        {/*
+          Two columns: the pitch and the form. Phone, email, and address used
+          to sit in a third column here, but this is the last section before
+          the footer, which now carries the same details - so they were
+          dropped rather than shown twice in a row.
+        */}
+        <div className="lg:col-span-5">
           <p className="text-xs font-semibold tracking-widest text-[#8C5228] uppercase">
             Get in touch
           </p>
@@ -203,8 +187,8 @@ export default function ContactSection() {
           </p>
         </div>
 
-        {/* Middle - the form. */}
-        <div className="lg:col-span-5">
+        {/* Right - the form. */}
+        <div className="lg:col-span-7">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={LABEL} htmlFor="inquiry-name">
@@ -328,36 +312,6 @@ export default function ContactSection() {
               ) : null}
             </div>
           </form>
-        </div>
-
-        {/* Right - how to reach us directly. */}
-        <div className="space-y-4 lg:col-span-3">
-          {CONTACT.map(({ icon: Icon, value, href, note }) => (
-            <div key={value} className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#7A451F] ring-1 ring-[#E8DFC8]">
-                <Icon className="h-4 w-4" aria-hidden />
-              </span>
-
-              <div className="min-w-0">
-                {href ? (
-                  <a
-                    href={href}
-                    className="text-xs font-bold text-[#2A170D] transition-colors hover:text-[#7A451F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C5228] md:text-sm"
-                  >
-                    {value}
-                  </a>
-                ) : (
-                  <p className="text-xs font-bold text-[#2A170D] md:text-sm">
-                    {value}
-                  </p>
-                )}
-
-                {note ? (
-                  <p className="text-[11px] text-[#5C4333]">{note}</p>
-                ) : null}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </section>
