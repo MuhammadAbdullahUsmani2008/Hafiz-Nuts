@@ -14,10 +14,17 @@ import CheckoutClient from "@/components/CheckoutClient";
  * the customer a pre-filled, correctly totalled message.
  */
 
+/*
+ * `noindex, follow`: a crawler has no cart, so this page only ever renders
+ * "Your cart is empty" to it - nothing worth a search listing. `follow`
+ * keeps the links on it (home, products) crawlable. It is also left out of
+ * `app/sitemap.ts`.
+ */
 export const metadata: Metadata = {
-  title: "Checkout | HAFIZ NUTS",
+  title: "Checkout",
   description:
     "Confirm your HAFIZ NUTS order on WhatsApp. Cash on Delivery available across Pakistan.",
+  robots: { index: false, follow: true },
 };
 
 export default function CheckoutPage() {

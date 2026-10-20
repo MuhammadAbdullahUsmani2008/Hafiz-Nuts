@@ -48,7 +48,7 @@ export default function ProductCard({
           {image ? (
             <Image
               src={image}
-              alt={product.name}
+              alt={`Hafiz Nuts Premium Honey & Nut Mix - ${product.name}`}
               width={320}
               height={320}
               className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"

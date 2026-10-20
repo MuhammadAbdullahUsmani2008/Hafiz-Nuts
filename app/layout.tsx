@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Caveat, Inter, Playfair_Display } from "next/font/google";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { CartProvider } from "@/context/CartContext";
 import { SITE_URL } from "@/lib/catalog";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 /**
@@ -41,10 +42,21 @@ const caveat = Caveat({
 /*
  * `metadataBase` lets any route's metadata use relative URLs; the OG and
  * Twitter images below are absolute already, so they ignore it.
+ *
+ * `title.template` brands every child page's `<title>` ("Privacy Policy |
+ * Hafiz Nuts"), so routes only state their own part. The `openGraph` and
+ * `twitter` objects here are the homepage's: other routes replace them in
+ * full through `pageMetadata` in `lib/seo.ts` - see the note there on
+ * shallow merging. No canonical is set here for the same reason: it would
+ * be inherited by every route that forgot to set its own.
  */
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Hafiz Nuts | Premium Dry Fruits Mixed with Honey",
+  title: {
+    default: "Hafiz Nuts | Premium Dry Fruits Mixed with Honey",
+    template: `%s | ${SITE_NAME}`,
+  },
+  applicationName: SITE_NAME,
   description:
     "Discover the finest quality dry fruits blended with pure honey from Hafiz Nuts. 100% natural, healthy, and premium packaging delivered all over Pakistan.",
   keywords: [
@@ -60,15 +72,8 @@ export const metadata: Metadata = {
     description:
       "Shop 100% natural dry fruits mixed with honey. Premium quality delivered across Pakistan.",
     url: SITE_URL,
-    siteName: "Hafiz Nuts",
-    images: [
-      {
-        url: `${SITE_URL}/og-image.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Hafiz Nuts Products",
-      },
-    ],
+    siteName: SITE_NAME,
+    images: [DEFAULT_OG_IMAGE],
     locale: "en_PK",
     type: "website",
   },
@@ -76,14 +81,19 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Hafiz Nuts | Premium Dry Fruits & Honey",
     description: "Shop 100% natural dry fruits mixed with honey.",
-    images: [`${SITE_URL}/og-image.jpg`],
+    images: [DEFAULT_OG_IMAGE.url],
   },
+};
+
+/* Tints the mobile browser chrome to the brand's walnut brown. */
+export const viewport: Viewport = {
+  themeColor: "#7A451F",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="en-PK"
       className={`${inter.variable} ${playfair.variable} ${caveat.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">

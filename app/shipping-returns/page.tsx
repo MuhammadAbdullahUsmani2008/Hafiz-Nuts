@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import PolicyPage from "@/components/PolicyPage";
 import { WHATSAPP_NUMBER } from "@/lib/catalog";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * HAFIZ NUTS - `/shipping-returns`.
@@ -16,11 +17,12 @@ import { WHATSAPP_NUMBER } from "@/lib/catalog";
  * than summarised.
  */
 
-export const metadata: Metadata = {
-  title: "Shipping & Returns | HAFIZ NUTS",
+export const metadata: Metadata = pageMetadata({
+  title: "Shipping & Returns",
   description:
     "Nationwide delivery across Pakistan in 2–4 working days, dispatched within 24–48 hours. See our freshness guarantee and damaged-item replacement policy.",
-};
+  path: "/shipping-returns",
+});
 
 export default function ShippingReturnsPage() {
   return (

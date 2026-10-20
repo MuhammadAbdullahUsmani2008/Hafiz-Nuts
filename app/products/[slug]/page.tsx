@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import JsonLd from "@/components/JsonLd";
 import ProductConfigurator, {
   type PackOption,
 } from "@/components/ProductConfigurator";
-import { formatPkr, PRODUCTS, SITE_URL } from "@/lib/catalog";
+import { formatPkr, PRODUCTS } from "@/lib/catalog";
 import { resolvePublicImage } from "@/lib/resolveImage";
+import { pageMetadata, productJsonLd } from "@/lib/seo";
 
 /**
  * HAFIZ NUTS - product detail route (`/products/[slug]`).
@@ -18,6 +20,10 @@ import { resolvePublicImage } from "@/lib/resolveImage";
  * Image resolution happens here rather than in the configurator: the
  * configurator is a client component and `node:fs` has no browser equivalent,
  * so the resolved URLs are handed down as props.
+ *
+ * Each pack also carries its own canonical, share card (its own photograph),
+ * and Product + BreadcrumbList JSON-LD, so search results can show the price
+ * and stock state per size.
  */
 
 /** Pack size routes in catalog order. */
@@ -33,42 +39,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = PRODUCTS.find((entry) => entry.slug === slug);
 
-  if (!product) return { title: "Product Not Found | HAFIZ NUTS" };
+  if (!product) return { title: "Product Not Found" };
 
-  const title = `Premium Honey & Nut Mix (${product.size}) | HAFIZ NUTS`;
-  const description = `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`;
-  const url = `${SITE_URL}/products/${product.slug}`;
-
-  /*
-   * Next merges `openGraph` and `twitter` shallowly: setting either here
-   * replaces the root layout's object wholesale rather than extending it. So
-   * `siteName`, `locale`, and `type` are restated, and the share image is this
-   * pack's own photograph instead of the site-wide card - without these, a
-   * shared product link would preview with no image or site name.
-   */
-  const image = resolvePublicImage(product.imageCandidates) ?? product.image;
-  const imageAlt = `Premium Honey & Nut Mix - ${product.size} pack`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "Hafiz Nuts",
-      images: [{ url: `${SITE_URL}${image}`, alt: imageAlt }],
-      locale: "en_PK",
-      type: "website",
+  return pageMetadata({
+    title: `Premium Honey & Nut Mix (${product.size})`,
+    description: `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`,
+    path: `/products/${product.slug}`,
+    image: {
+      path: resolvePublicImage(product.imageCandidates) ?? product.image,
+      alt: `Premium Honey & Nut Mix - ${product.size} pack`,
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [`${SITE_URL}${image}`],
-    },
-  };
+  });
 }
 
 export default async function ProductPage({
@@ -81,6 +62,8 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  const image = resolvePublicImage(product.imageCandidates);
+
   /* Every pack size, with its photograph resolved, for the selector + gallery. */
   const options: readonly PackOption[] = PRODUCTS.map((entry) => ({
     slug: entry.slug,
@@ -91,13 +74,11 @@ export default async function ProductPage({
 
   return (
     <main className="flex-1 bg-[#FAF6F0] px-4 py-8 md:px-8 md:py-12">
+      <JsonLd data={productJsonLd(product, image ?? product.image)} />
+
       {/* Clears the fixed header, which overlays the top of the viewport. */}
       <div className="mx-auto max-w-6xl pt-16 md:pt-8">
-        <ProductConfigurator
-          product={product}
-          image={resolvePublicImage(product.imageCandidates)}
-          options={options}
-        />
+        <ProductConfigurator product={product} image={image} options={options} />
       </div>
     </main>
   );

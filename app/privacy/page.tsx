@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import PolicyPage from "@/components/PolicyPage";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * HAFIZ NUTS - `/privacy`.
@@ -17,11 +18,12 @@ import PolicyPage from "@/components/PolicyPage";
  * back-end would automatically keep.
  */
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | HAFIZ NUTS",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy",
   description:
     "HAFIZ NUTS collects only your name, phone, address, and city to process and deliver your order. We never sell or share your data for marketing.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+/*
+ * Title only: Next already emits `noindex` on the not-found boundary, so
+ * setting `robots` here would print a second, duplicate tag.
+ */
+export const metadata: Metadata = {
+  title: "Page Not Found",
+};
 
 /**
  * HAFIZ NUTS - not-found boundary.

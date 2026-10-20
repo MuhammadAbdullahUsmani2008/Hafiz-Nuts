@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import PolicyPage from "@/components/PolicyPage";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * HAFIZ NUTS - `/terms`.
@@ -16,11 +17,12 @@ import PolicyPage from "@/components/PolicyPage";
  * places.
  */
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions | HAFIZ NUTS",
+export const metadata: Metadata = pageMetadata({
+  title: "Terms & Conditions",
   description:
     "Stock confirmation on WhatsApp, prices in PKR, and payment by Cash on Delivery or EasyPaisa with receipt verification before dispatch.",
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (
