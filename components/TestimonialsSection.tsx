@@ -28,25 +28,29 @@ type Review = {
   initials: string;
 };
 
+/*
+ * The first entry is a real customer review, quoted exactly as sent. The
+ * other two are still placeholders - replace them as genuine reviews arrive.
+ */
 const REVIEWS: readonly Review[] = [
   {
     quote:
-      "Amazing quality and taste! The honey & nut mix is so fresh and delicious. Truly premium and worth it.",
-    name: "Priya Sharma",
-    city: "Lahore",
-    initials: "PS",
+      "Bhai…mashallah bhot hi zbardast or Allla-Quality ha…jazakAllah hiil khair🙂",
+    name: "Wajahat",
+    city: "Rahim Yar Khan",
+    initials: "W",
   },
   {
     quote:
       "HAFIZ NUTS has become our family's favorite snack. The quality is consistent and simply the best.",
-    name: "Rahul Mehta",
+    name: "Abdullah",
     city: "Karachi",
-    initials: "RM",
+    initials: "A",
   },
   {
     quote:
       "Fresh, natural, and delicious! Highly recommended to everyone looking for authentic quality.",
-    name: "Sneha Kapoor",
+    name: "Sher Khan",
     city: "Islamabad",
     initials: "SK",
   },
