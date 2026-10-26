@@ -29,8 +29,8 @@ type Review = {
 };
 
 /*
- * The first entry is a real customer review, quoted exactly as sent. The
- * other two are still placeholders - replace them as genuine reviews arrive.
+ * Real customer reviews, quoted exactly as sent - wording, spelling, and
+ * emoji untouched. Keep it that way: only add reviews customers actually gave.
  */
 const REVIEWS: readonly Review[] = [
   {
@@ -42,17 +42,17 @@ const REVIEWS: readonly Review[] = [
   },
   {
     quote:
-      "HAFIZ NUTS has become our family's favorite snack. The quality is consistent and simply the best.",
-    name: "Abdullah",
-    city: "Karachi",
+      "Aoa\ndry fruits box bht hi yummy and healthy thy.. or honey ki quantity b kafi achi thi.. Allah pak ap k kam mn barkat dalen",
+    name: "Ayesha",
+    city: "Rahim Yar Khan",
     initials: "A",
   },
   {
     quote:
-      "Fresh, natural, and delicious! Highly recommended to everyone looking for authentic quality.",
-    name: "Sher Khan",
-    city: "Islamabad",
-    initials: "SK",
+      "Dry fruits with honey ka combo lajawab hai, freshness aur quality 10/10 hai. Healthy, tasty aur energy se bharpoor - highly recommended!",
+    name: "Zainab",
+    city: "Rahim Yar Khan",
+    initials: "Z",
   },
 ];
 
@@ -115,7 +115,8 @@ export default function TestimonialsSection() {
                     ))}
                   </div>
 
-                  <blockquote className="text-xs leading-relaxed text-[#3D2518] md:text-sm">
+                  {/* `pre-line` keeps a customer's own line breaks, e.g. after a greeting. */}
+                  <blockquote className="text-xs leading-relaxed whitespace-pre-line text-[#3D2518] md:text-sm">
                     &ldquo;{quote}&rdquo;
                   </blockquote>
 
