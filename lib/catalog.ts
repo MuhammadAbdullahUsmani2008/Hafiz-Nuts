@@ -14,9 +14,29 @@
  * `formatPkr`, so cart maths, totals, and comparisons never parse a string.
  */
 
+/**
+ * Product lines. Every pack belongs to one: the line supplies the display
+ * name used in page titles, breadcrumbs, and structured data, and keeps a
+ * product page's size selector within its own line.
+ */
+export const PRODUCT_LINES = {
+  mix: {
+    name: "Premium Honey & Nut Mix",
+    /* Anchor of this line's group on `/products`. */
+    anchor: "honey-nut-mix",
+  },
+  honey: {
+    name: "Pure Sidr (Beri) Honey",
+    anchor: "honey",
+  },
+} as const;
+
+export type ProductLine = keyof typeof PRODUCT_LINES;
+
 export type Product = {
   /** Stable identifier - also the cart line-item key. */
   id: string;
+  line: ProductLine;
   name: string;
   /** URL segment of the detail page: `/products/[slug]`. */
   slug: string;
@@ -106,6 +126,7 @@ export const SITE_URL = "https://hafiznuts.com";
 export const PRODUCTS: readonly Product[] = [
   {
     id: "hn-mix-30g",
+    line: "mix",
     name: "30g Tub",
     slug: "honey-nut-mix-30g",
     size: "30g",
@@ -119,6 +140,7 @@ export const PRODUCTS: readonly Product[] = [
   },
   {
     id: "hn-mix-100g",
+    line: "mix",
     name: "100g Jar",
     slug: "honey-nut-mix-100g",
     size: "100g",
@@ -128,16 +150,17 @@ export const PRODUCTS: readonly Product[] = [
     description:
       "Everyday jar size for daily snacking, lunchboxes and the office desk.",
     inStock: true,
-    featured: true,
+    featured: false,
   },
   {
     id: "hn-mix-200g",
+    line: "mix",
     name: "200g Jar",
     slug: "honey-nut-mix-200g",
     size: "200g",
     pricePkr: 650,
     image: "/200g.jpg",
-    imageCandidates: ["200g-jar", "200g-tub", "200g"],
+    imageCandidates: ["200g-jar", "200g"],
     description:
       "Shareable jar of the honey & nut mix - sized for families and gifting.",
     inStock: true,
@@ -145,6 +168,7 @@ export const PRODUCTS: readonly Product[] = [
   },
   {
     id: "hn-mix-250g",
+    line: "mix",
     name: "250g Jar",
     slug: "honey-nut-mix-250g",
     size: "250g",
@@ -158,6 +182,7 @@ export const PRODUCTS: readonly Product[] = [
   },
   {
     id: "hn-mix-500g",
+    line: "mix",
     name: "500g Jar",
     slug: "honey-nut-mix-500g",
     size: "500g",
@@ -171,6 +196,7 @@ export const PRODUCTS: readonly Product[] = [
   },
   {
     id: "hn-mix-1kg",
+    line: "mix",
     name: "1kg Jar",
     slug: "honey-nut-mix-1kg",
     size: "1kg",
@@ -180,9 +206,90 @@ export const PRODUCTS: readonly Product[] = [
     description:
       "Our largest jar of honey & dry fruit mix - the best value per gram for big households, gifting and stocking up.",
     inStock: true,
+    featured: false,
+  },
+
+  /*
+   * Pure Sidr (Beri) honey. Names carry "Sidr Honey" because the cart,
+   * checkout, and WhatsApp order show `name` alone - "500g Jar" would be
+   * ambiguous next to the nut mix's 500g jar.
+   */
+  {
+    id: "sidr-honey-100g",
+    line: "honey",
+    name: "Sidr Honey 100g Jar",
+    slug: "sidr-honey-100g",
+    size: "100g",
+    pricePkr: 450,
+    image: "/sidr-honey-100g.jpg",
+    imageCandidates: ["Honey/100g", "sidr-honey-100g"],
+    description:
+      "A taster jar of pure Sidr (Beri) honey - rich, golden, and naturally sweet.",
+    inStock: true,
+    featured: false,
+  },
+  {
+    id: "sidr-honey-200g",
+    line: "honey",
+    name: "Sidr Honey 200g Jar",
+    slug: "sidr-honey-200g",
+    size: "200g",
+    pricePkr: 900,
+    image: "/sidr-honey-200g.jpg",
+    imageCandidates: ["Honey/200g", "sidr-honey-200g"],
+    description:
+      "A handy jar of pure Sidr (Beri) honey for everyday tea, toast, and wellness routines.",
+    inStock: true,
+    featured: false,
+  },
+  {
+    id: "sidr-honey-250g",
+    line: "honey",
+    name: "Sidr Honey 250g Jar",
+    slug: "sidr-honey-250g",
+    size: "250g",
+    pricePkr: 1125,
+    image: "/sidr-honey-250g.jpg",
+    imageCandidates: ["Honey/250g", "sidr-honey-250g"],
+    description:
+      "Pure Sidr (Beri) honey in an everyday family size.",
+    inStock: true,
     featured: true,
   },
+  {
+    id: "sidr-honey-500g",
+    line: "honey",
+    name: "Sidr Honey 500g Jar",
+    slug: "sidr-honey-500g",
+    size: "500g",
+    pricePkr: 2250,
+    image: "/sidr-honey-500g.jpg",
+    imageCandidates: ["Honey/500g", "sidr-honey-500g"],
+    description:
+      "A generous jar of pure Sidr (Beri) honey for regular use at home.",
+    inStock: true,
+    featured: true,
+  },
+  {
+    id: "sidr-honey-1kg",
+    line: "honey",
+    name: "Sidr Honey 1kg Jar",
+    slug: "sidr-honey-1kg",
+    size: "1kg",
+    pricePkr: 4500,
+    image: "/sidr-honey-1kg.jpg",
+    imageCandidates: ["Honey/1kg", "sidr-honey-1kg"],
+    description:
+      "Our largest jar of pure Sidr (Beri) honey - the best value for households and gifting.",
+    inStock: true,
+    featured: false,
+  },
 ];
+
+/** One line's packs, in catalog order - for size selectors and grouped lists. */
+export function productsInLine(line: ProductLine): readonly Product[] {
+  return PRODUCTS.filter((product) => product.line === line);
+}
 
 export const BUNDLES: readonly Bundle[] = [
   {

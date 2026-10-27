@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-import { ContactList, packSizesText } from "@/components/PolicyContent";
+import {
+  ContactList,
+  lineName,
+  packSizesText,
+} from "@/components/PolicyContent";
 import PolicyPage from "@/components/PolicyPage";
 import { pageMetadata } from "@/lib/seo";
 
@@ -21,12 +25,13 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Product Information & Allergen Notice",
   description:
-    "Product range, ingredients, allergen information, net weight and storage guidance for HAFIZ NUTS Premium Honey & Nut Mix.",
+    "Product range, ingredients, allergen information, net weight and storage guidance for HAFIZ NUTS Premium Honey & Nut Mix and Pure Sidr (Beri) Honey.",
   path: "/product-info",
 });
 
 export default function ProductInfoPage() {
-  const sizes = packSizesText();
+  const mixSizes = packSizesText("mix");
+  const honeySizes = packSizesText("honey");
 
   return (
     <PolicyPage
@@ -38,10 +43,16 @@ export default function ProductInfoPage() {
               heading: "Product range",
               body: (
                 <>
-                  <p>
-                    HAFIZ NUTS offers Premium Honey &amp; Nut Mix in {sizes}{" "}
-                    packs.
-                  </p>
+                  <p>HAFIZ NUTS offers:</p>
+                  <ul>
+                    <li>
+                      <strong>{lineName("mix")}</strong> in {mixSizes} packs.
+                    </li>
+                    <li>
+                      <strong>{lineName("honey")}</strong> in {honeySizes}{" "}
+                      jars.
+                    </li>
+                  </ul>
                   <p>
                     The selected pack size, price and other material product
                     details are shown before you confirm an order.
@@ -69,8 +80,13 @@ export default function ProductInfoPage() {
               body: (
                 <>
                   <p>
-                    <strong>Contains nuts.</strong> Please check the product
-                    label for full allergen information.
+                    <strong>{lineName("mix")}: contains nuts.</strong> Please
+                    check the product label for full allergen information.
+                  </p>
+                  <p>
+                    <strong>{lineName("honey")}</strong> is pure honey. If you
+                    have a nut allergy, please contact us before ordering to
+                    ask about possible cross-contact.
                   </p>
                   <p>
                     Customers with food allergies or dietary restrictions should
@@ -85,9 +101,23 @@ export default function ProductInfoPage() {
               heading: "Net weight",
               body: (
                 <p>
-                  The pack selected and confirmed by the customer will be{" "}
-                  {sizes.replace(" and ", " or ")}, as applicable. The net
-                  weight is stated on the product label.
+                  The pack selected and confirmed by the customer will be the
+                  stated size - {mixSizes.replace(" and ", " or ")} for the
+                  honey &amp; nut mix, or {honeySizes.replace(" and ", " or ")}{" "}
+                  for pure honey. The net weight is stated on the product
+                  label.
+                </p>
+              ),
+            },
+            {
+              heading: "Honey and infants",
+              body: (
+                <p>
+                  <strong>
+                    Do not give honey to infants under 12 months of age.
+                  </strong>{" "}
+                  This applies to both our pure honey and our honey &amp; nut
+                  mix.
                 </p>
               ),
             },

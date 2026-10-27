@@ -8,7 +8,8 @@ import { PRODUCTS } from "@/lib/catalog";
  * HAFIZ NUTS - "Our Premium Products" (homepage).
  *
  * Server component. Shows only the catalog entries flagged `featured` in
- * `lib/catalog.ts`; the full range lives on `/products`, which the CTA below
+ * `lib/catalog.ts` - two packs from each product line (mix, then honey); the
+ * full range lives on `/products`, which the CTA below
  * the grid links to. Changing what the homepage features is a one-flag edit
  * in the catalog - nothing is selected inline here.
  *
@@ -41,8 +42,8 @@ export default function ProductsSection() {
           </h2>
 
           <p className="mx-auto mt-2 max-w-xl text-sm text-[#5C4333] md:text-base">
-            Handpicked premium honey and nut mixes packed for freshness and
-            health.
+            Our honey &amp; nut mix and pure Sidr (Beri) honey - packed for
+            freshness and health.
           </p>
         </div>
 

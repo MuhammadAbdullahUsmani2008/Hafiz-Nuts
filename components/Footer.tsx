@@ -58,6 +58,7 @@ import {
 const EXPLORE = [
   { href: "/", label: "Home" },
   { href: "/products", label: "All Products" },
+  { href: "/products#honey", label: "Pure Sidr Honey" },
   { href: "/#bundles", label: "Bundle Offers" },
   { href: "/#benefits", label: "Health Benefits" },
   { href: "/#why-us", label: "Why Choose Us" },

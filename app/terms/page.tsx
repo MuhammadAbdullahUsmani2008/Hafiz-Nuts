@@ -5,6 +5,7 @@ import {
   BundlePriceList,
   ContactBlock,
   ContactList,
+  lineName,
   ProductPriceList,
 } from "@/components/PolicyContent";
 import PolicyPage from "@/components/PolicyPage";
@@ -74,10 +75,15 @@ export default function TermsPage() {
               body: (
                 <>
                   <p>
-                    HAFIZ NUTS offers Premium Honey &amp; Nut Mix in these pack
-                    sizes:
+                    HAFIZ NUTS offers <strong>{lineName("mix")}</strong> in
+                    these pack sizes:
                   </p>
-                  <ProductPriceList />
+                  <ProductPriceList line="mix" />
+                  <p>
+                    <strong>{lineName("honey")}</strong> is available in these
+                    jar sizes:
+                  </p>
+                  <ProductPriceList line="honey" />
                   <p>Current bundle offers are:</p>
                   <BundlePriceList />
                   <p>

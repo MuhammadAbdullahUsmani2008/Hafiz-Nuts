@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import {
   CONTACT_EMAIL,
   formatPkr,
+  PRODUCT_LINES,
   SITE_URL,
   WHATSAPP_NUMBER,
   type Product,
@@ -158,7 +159,7 @@ export function productListJsonLd(products: readonly Product[]) {
     itemListElement: products.map((product, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      name: `Premium Honey & Nut Mix (${product.size})`,
+      name: `${PRODUCT_LINES[product.line].name} (${product.size})`,
       url: `${SITE_URL}/products/${product.slug}`,
     })),
   };
@@ -173,7 +174,7 @@ export function productListJsonLd(products: readonly Product[]) {
  */
 export function productJsonLd(product: Product, imagePath: string) {
   const url = `${SITE_URL}/products/${product.slug}`;
-  const name = `Premium Honey & Nut Mix (${product.size})`;
+  const name = `${PRODUCT_LINES[product.line].name} (${product.size})`;
 
   return {
     "@context": "https://schema.org",

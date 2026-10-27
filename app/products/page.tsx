@@ -4,16 +4,22 @@ import { ArrowLeft, Leaf } from "lucide-react";
 
 import JsonLd from "@/components/JsonLd";
 import ProductGrid from "@/components/ProductGrid";
-import { PRODUCTS } from "@/lib/catalog";
+import {
+  PRODUCT_LINES,
+  PRODUCTS,
+  productsInLine,
+  type ProductLine,
+} from "@/lib/catalog";
 import { pageMetadata, productListJsonLd } from "@/lib/seo";
 
 /**
  * HAFIZ NUTS - `/products`, the full catalog listing.
  *
- * Every pack size, in catalog order, using the same cards as the homepage's
- * featured grid. This route used to be a 307 redirect to the 200g detail
- * page; it is now the page the header, breadcrumbs, and the homepage's
- * "View All Products & Sizes" CTA point at.
+ * Every pack, grouped by product line - Honey & Nut Mix, then Pure Sidr
+ * Honey - using the same cards as the homepage. Each group has an anchor
+ * (`#honey-nut-mix`, `#honey`) that the chips at the top, product-page
+ * breadcrumbs and the footer link to. The header's
+ * "Products" link and the homepage's "All Products" button land here.
  *
  * Server component and fully static: the cards are the only client code, and
  * their images are resolved at prerender time by `ProductGrid`.
@@ -22,9 +28,25 @@ import { pageMetadata, productListJsonLd } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "All Products",
   description:
-    "Shop every size of Hafiz Nuts premium honey & dry fruit mix - from the 30g tub to the 1kg jar. 100% natural, Cash on Delivery all over Pakistan.",
+    "Shop Hafiz Nuts premium honey & dry fruit mix and pure Sidr (Beri) honey in every size - from the 30g tub to the 1kg jar. 100% natural, Cash on Delivery all over Pakistan.",
   path: "/products",
 });
+
+/* Display order of the groups, with each one's short intro line. */
+const GROUPS: readonly { line: ProductLine; intro: string }[] = [
+  {
+    line: "mix",
+    intro: "Honey with hand-picked nuts and dry fruits - from a 30g taster tub to the 1kg family jar.",
+  },
+  {
+    line: "honey",
+    intro: "Pure, natural Sidr (Beri) honey - rich, golden, and naturally sweet.",
+  },
+];
+
+/* Pill styling shared with the pack-size selector on product pages. */
+const CHIP =
+  "rounded-full border border-[#E8DFC8] bg-white px-4 py-2 text-xs font-semibold text-[#5C4333] transition-colors hover:border-[#8C5228] hover:text-[#2A170D] md:text-sm";
 
 const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C5228]";
@@ -50,7 +72,7 @@ export default function ProductsPage() {
           </span>
 
           <p className="mt-3 text-xs font-semibold tracking-[0.2em] text-[#8C5228] uppercase">
-            Every size, one recipe
+            Every size, every jar
           </p>
 
           <h1 className="mt-1 font-display text-3xl font-bold text-[#2A170D] md:text-4xl">
@@ -58,12 +80,47 @@ export default function ProductsPage() {
           </h1>
 
           <p className="mx-auto mt-2 max-w-xl text-sm text-[#5C4333] md:text-base">
-            Our premium honey &amp; dry fruit mix in every pack size - from a
-            30g taster tub to the 1kg family jar.
+            Our premium honey &amp; dry fruit mix and pure Sidr honey, in
+            every pack size.
           </p>
+
+          {/* Jump links to each group below. */}
+          <nav aria-label="Product lines" className="mt-6 flex flex-wrap justify-center gap-2.5">
+            {GROUPS.map(({ line }) => (
+              <a
+                key={line}
+                href={`#${PRODUCT_LINES[line].anchor}`}
+                className={`${CHIP} ${FOCUS_RING}`}
+              >
+                {PRODUCT_LINES[line].name}
+              </a>
+            ))}
+          </nav>
         </header>
 
-        <ProductGrid products={PRODUCTS} className="mt-10 lg:grid-cols-3" />
+        {GROUPS.map(({ line, intro }) => (
+          <section
+            key={line}
+            id={PRODUCT_LINES[line].anchor}
+            aria-labelledby={`${line}-heading`}
+            className="mt-14 scroll-mt-24"
+          >
+            <div className="border-b border-[#E8DFC8] pb-3">
+              <h2
+                id={`${line}-heading`}
+                className="font-display text-2xl font-bold text-[#2A170D] md:text-3xl"
+              >
+                {PRODUCT_LINES[line].name}
+              </h2>
+              <p className="mt-1 text-sm text-[#5C4333]">{intro}</p>
+            </div>
+
+            <ProductGrid
+              products={productsInLine(line)}
+              className="mt-6 lg:grid-cols-3"
+            />
+          </section>
+        ))}
 
         {/* Bundles are not products, so point at them rather than listing them. */}
         <p className="mt-10 text-center text-sm text-[#5C4333]">

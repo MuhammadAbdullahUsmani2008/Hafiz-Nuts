@@ -16,7 +16,12 @@ import {
 } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
-import { formatPkr, PLACEHOLDER_IMAGE, type Product } from "@/lib/catalog";
+import {
+  formatPkr,
+  PLACEHOLDER_IMAGE,
+  PRODUCT_LINES,
+  type Product,
+} from "@/lib/catalog";
 
 /**
  * HAFIZ NUTS - product detail configurator.
@@ -60,6 +65,8 @@ export default function ProductConfigurator({
   options: readonly PackOption[];
 }) {
   const router = useRouter();
+  /* Display name and /products anchor of this pack's line (mix or honey). */
+  const line = PRODUCT_LINES[product.line];
   const { addItem, openCart, closeCart } = useCart();
   const [quantity, setQuantity] = useState(1);
 
@@ -107,7 +114,7 @@ export default function ProductConfigurator({
           {image ? (
             <Image
               src={image}
-              alt={`Premium Honey & Nut Mix - ${product.size} pack`}
+              alt={`${line.name} - ${product.size} pack`}
               fill
               priority
               sizes="(min-width: 1024px) 50vw, 100vw"
@@ -180,7 +187,7 @@ export default function ProductConfigurator({
             <li aria-hidden>›</li>
             <li>
               <Link
-                href="/products"
+                href={`/products#${line.anchor}`}
                 className={`hover:text-[#2A170D] ${FOCUS_RING}`}
               >
                 Products
@@ -188,13 +195,13 @@ export default function ProductConfigurator({
             </li>
             <li aria-hidden>›</li>
             <li className="font-medium text-[#2A170D]">
-              Premium Honey &amp; Nut Mix ({product.size})
+              {line.name} ({product.size})
             </li>
           </ol>
         </nav>
 
         <h1 className="mt-3 font-display text-3xl font-bold text-[#2A170D] md:text-4xl">
-          Premium Honey &amp; Nut Mix
+          {line.name}
         </h1>
 
         <p className="mt-2 text-sm leading-relaxed text-[#5C4333]">

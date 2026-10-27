@@ -5,7 +5,7 @@ import JsonLd from "@/components/JsonLd";
 import ProductConfigurator, {
   type PackOption,
 } from "@/components/ProductConfigurator";
-import { formatPkr, PRODUCTS } from "@/lib/catalog";
+import { formatPkr, PRODUCT_LINES, PRODUCTS, productsInLine } from "@/lib/catalog";
 import { resolvePublicImage } from "@/lib/resolveImage";
 import { pageMetadata, productJsonLd } from "@/lib/seo";
 
@@ -41,14 +41,16 @@ export async function generateMetadata({
 
   if (!product) return { title: "Product Not Found" };
 
+  const lineName = PRODUCT_LINES[product.line].name;
+
   return pageMetadata({
-    title: `Premium Honey & Nut Mix (${product.size})`,
+    title: `${lineName} (${product.size})`,
     description: `${product.description} Priced at ${formatPkr(product.pricePkr)} for the ${product.size} pack. Cash on Delivery available across Pakistan.`,
     path: `/products/${product.slug}`,
     image: {
       /* No photograph yet -> the site card, never a path that 404s. */
       path: resolvePublicImage(product.imageCandidates) ?? "/og-image.jpg",
-      alt: `Premium Honey & Nut Mix - ${product.size} pack`,
+      alt: `${lineName} - ${product.size} pack`,
     },
   });
 }
@@ -65,8 +67,12 @@ export default async function ProductPage({
 
   const image = resolvePublicImage(product.imageCandidates);
 
-  /* Every pack size, with its photograph resolved, for the selector + gallery. */
-  const options: readonly PackOption[] = PRODUCTS.map((entry) => ({
+  /*
+   * Every pack size in this product line, with its photograph resolved, for
+   * the selector + gallery. Lines never mix: a honey jar page offers only
+   * honey sizes.
+   */
+  const options: readonly PackOption[] = productsInLine(product.line).map((entry) => ({
     slug: entry.slug,
     size: entry.size,
     pricePkr: entry.pricePkr,

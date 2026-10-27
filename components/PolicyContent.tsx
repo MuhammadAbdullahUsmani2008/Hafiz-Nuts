@@ -3,7 +3,9 @@ import {
   CONTACT_EMAIL,
   CONTACT_PHONE,
   formatPkr,
-  PRODUCTS,
+  PRODUCT_LINES,
+  productsInLine,
+  type ProductLine,
 } from "@/lib/catalog";
 
 /**
@@ -44,17 +46,22 @@ export function ContactBlock() {
   );
 }
 
-/** "30g - PKR 100" for every pack size, in catalog order. */
-export function ProductPriceList() {
+/** "30g - PKR 100" for every pack size in one product line, in catalog order. */
+export function ProductPriceList({ line }: { line: ProductLine }) {
   return (
     <ul>
-      {PRODUCTS.map((product) => (
+      {productsInLine(line).map((product) => (
         <li key={product.id}>
           {product.size} - {formatPkr(product.pricePkr)}
         </li>
       ))}
     </ul>
   );
+}
+
+/** A product line's display name, e.g. "Pure Sidr (Beri) Honey". */
+export function lineName(line: ProductLine): string {
+  return PRODUCT_LINES[line].name;
 }
 
 export function BundlePriceList() {
@@ -69,8 +76,8 @@ export function BundlePriceList() {
   );
 }
 
-/** "30g, 100g, …, 500g and 1kg" - the pack sizes as running text. */
-export function packSizesText(): string {
-  const sizes = PRODUCTS.map((product) => product.size);
+/** "30g, 100g, …, 500g and 1kg" - one line's pack sizes as running text. */
+export function packSizesText(line: ProductLine): string {
+  const sizes = productsInLine(line).map((product) => product.size);
   return `${sizes.slice(0, -1).join(", ")} and ${sizes[sizes.length - 1]}`;
 }
