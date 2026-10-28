@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Inter, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -110,6 +111,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
           <CartDrawer />
         </CartProvider>
+        {/* Chatgrain AI assistant widget, loaded once for every route. */}
+        <Script
+          src="https://chatgrain.com/embed.js"
+          data-agent-id="2fb314cd-6b82-4203-9acf-0a371c6077b8"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
