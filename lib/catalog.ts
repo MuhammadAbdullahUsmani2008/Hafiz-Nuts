@@ -222,7 +222,7 @@ export const PRODUCTS: readonly Product[] = [
     size: "100g",
     pricePkr: 450,
     image: "/sidr-honey-100g.jpg",
-    imageCandidates: ["Honey/100g", "sidr-honey-100g"],
+    imageCandidates: ["honey/100g", "sidr-honey-100g"],
     description:
       "A taster jar of pure Sidr (Beri) honey - rich, golden, and naturally sweet.",
     inStock: true,
@@ -236,7 +236,7 @@ export const PRODUCTS: readonly Product[] = [
     size: "200g",
     pricePkr: 900,
     image: "/sidr-honey-200g.jpg",
-    imageCandidates: ["Honey/200g", "sidr-honey-200g"],
+    imageCandidates: ["honey/200g", "sidr-honey-200g"],
     description:
       "A handy jar of pure Sidr (Beri) honey for everyday tea, toast, and wellness routines.",
     inStock: true,
@@ -250,7 +250,7 @@ export const PRODUCTS: readonly Product[] = [
     size: "250g",
     pricePkr: 1125,
     image: "/sidr-honey-250g.jpg",
-    imageCandidates: ["Honey/250g", "sidr-honey-250g"],
+    imageCandidates: ["honey/250g", "sidr-honey-250g"],
     description:
       "Pure Sidr (Beri) honey in an everyday family size.",
     inStock: true,
@@ -264,7 +264,7 @@ export const PRODUCTS: readonly Product[] = [
     size: "500g",
     pricePkr: 2250,
     image: "/sidr-honey-500g.jpg",
-    imageCandidates: ["Honey/500g", "sidr-honey-500g"],
+    imageCandidates: ["honey/500g", "sidr-honey-500g"],
     description:
       "A generous jar of pure Sidr (Beri) honey for regular use at home.",
     inStock: true,
@@ -278,7 +278,7 @@ export const PRODUCTS: readonly Product[] = [
     size: "1kg",
     pricePkr: 4500,
     image: "/sidr-honey-1kg.jpg",
-    imageCandidates: ["Honey/1kg", "sidr-honey-1kg"],
+    imageCandidates: ["honey/1kg", "sidr-honey-1kg"],
     description:
       "Our largest jar of pure Sidr (Beri) honey - the best value for households and gifting.",
     inStock: true,
