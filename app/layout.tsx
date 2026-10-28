@@ -115,7 +115,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script
           src="https://chatgrain.com/embed.js"
           data-agent-id="2fb314cd-6b82-4203-9acf-0a371c6077b8"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </body>
     </html>
