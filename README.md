@@ -1,4 +1,4 @@
-# Golden Harvest
+# Hafiz Nuts
 
 Landing page for a premium dry fruits e-commerce brand - hand-picked almonds,
 pistachios, cashews and dates.

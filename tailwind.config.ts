@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Golden Harvest - brand design tokens.
+ * Hafiz Nuts - brand design tokens.
  *
  * Tailwind v4 is CSS-first, so this file is opt-in: it is loaded by the
  * `@config "../tailwind.config.ts";` directive at the top of `app/globals.css`.
