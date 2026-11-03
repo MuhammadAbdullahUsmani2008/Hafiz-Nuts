@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   MessageCircle,
@@ -20,6 +20,7 @@ import {
   formatPkr,
   WHATSAPP_NUMBER,
 } from "@/lib/catalog";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 /**
  * HAFIZ NUTS - checkout.
@@ -225,6 +226,31 @@ export default function CheckoutClient() {
    */
   const totalPkr = subtotalPkr + DELIVERY_FEE_PKR;
 
+  /*
+   * InitiateCheckout - fired once per visit to this page, as long as the
+   * customer actually arrived here with a cart. `hasFiredInitiateCheckout`
+   * stops a re-render (e.g. a quantity-independent state update) from firing
+   * it again, and the `items.length === 0` guard means it never fires for a
+   * visitor who lands here with nothing in their cart.
+   */
+  const hasFiredInitiateCheckout = useRef(false);
+  useEffect(() => {
+    if (hasFiredInitiateCheckout.current) return;
+    if (items.length === 0) return;
+
+    hasFiredInitiateCheckout.current = true;
+    trackTikTokEvent("InitiateCheckout", {
+      contents: items.map((item) => ({
+        content_id: item.id,
+        content_name: item.name,
+        quantity: item.quantity,
+        price: item.pricePkr,
+      })),
+      value: subtotalPkr + DELIVERY_FEE_PKR,
+      currency: "PKR",
+    });
+  }, [items, subtotalPkr]);
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -303,6 +329,24 @@ export default function CheckoutClient() {
     });
 
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+    /*
+     * Contact - the site's main conversion event. Fires exactly once per
+     * click of "Confirm Order on WhatsApp", and only once validation above
+     * has already passed, so an incomplete form never reports a conversion.
+     * No personal details (name, phone, address) travel in the payload -
+     * only the order's commercial shape, which is all TikTok needs to
+     * attribute and value the conversion.
+     */
+    trackTikTokEvent("Contact", {
+      contents: items.map((item) => ({
+        content_id: item.id,
+        content_name: item.name,
+        quantity: item.quantity,
+      })),
+      value: totalPkr,
+      currency: "PKR",
+    });
 
     /*
      * Order of operations matters. `window.open` must run synchronously here

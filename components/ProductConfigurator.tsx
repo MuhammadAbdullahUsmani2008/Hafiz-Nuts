@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgeCheck,
   Leaf,
@@ -22,6 +22,7 @@ import {
   PRODUCT_LINES,
   type Product,
 } from "@/lib/catalog";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 /**
  * HAFIZ NUTS - product detail configurator.
@@ -94,14 +95,39 @@ export default function ProductConfigurator({
     image: image ?? PLACEHOLDER_IMAGE,
   };
 
+  /* ViewContent - once per product page view, and again if the shopper switches pack size. */
+  useEffect(() => {
+    trackTikTokEvent("ViewContent", {
+      contents: [
+        { content_id: product.id, content_name: product.name, price: product.pricePkr },
+      ],
+      value: product.pricePkr,
+      currency: "PKR",
+    });
+  }, [product.id, product.name, product.pricePkr]);
+
   /* Adds the configured quantity and opens the drawer. */
   const handleAddToCart = () => {
     addItem(cartLine, quantity);
+    trackTikTokEvent("AddToCart", {
+      contents: [
+        { content_id: product.id, content_name: product.name, quantity, price: product.pricePkr },
+      ],
+      value: product.pricePkr * quantity,
+      currency: "PKR",
+    });
   };
 
   /* Adds, closes the drawer the add just opened, and goes straight to checkout. */
   const handleBuyNow = () => {
     addItem(cartLine, quantity);
+    trackTikTokEvent("AddToCart", {
+      contents: [
+        { content_id: product.id, content_name: product.name, quantity, price: product.pricePkr },
+      ],
+      value: product.pricePkr * quantity,
+      currency: "PKR",
+    });
     closeCart();
     router.push("/checkout");
   };

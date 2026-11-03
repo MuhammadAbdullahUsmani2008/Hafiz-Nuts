@@ -11,6 +11,7 @@ import {
   PRODUCT_LINES,
   type Product,
 } from "@/lib/catalog";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 /**
  * HAFIZ NUTS - product card.
@@ -40,6 +41,13 @@ export default function ProductCard({
       pricePkr: product.pricePkr,
       /* No photograph yet - the cart shows the logo rather than a broken image. */
       image: image ?? PLACEHOLDER_IMAGE,
+    });
+    trackTikTokEvent("AddToCart", {
+      contents: [
+        { content_id: product.id, content_name: product.name, quantity: 1, price: product.pricePkr },
+      ],
+      value: product.pricePkr,
+      currency: "PKR",
     });
   };
 

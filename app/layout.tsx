@@ -4,6 +4,7 @@ import Script from "next/script";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import TikTokPixel from "@/components/TikTokPixel";
 import { CartProvider } from "@/context/CartContext";
 import { SITE_URL } from "@/lib/catalog";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
@@ -117,6 +118,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           data-agent-id="2fb314cd-6b82-4203-9acf-0a371c6077b8"
           strategy="afterInteractive"
         />
+        {/* TikTok Pixel - disabled unless NEXT_PUBLIC_TIKTOK_PIXEL_ID is set. */}
+        <TikTokPixel />
       </body>
     </html>
   );

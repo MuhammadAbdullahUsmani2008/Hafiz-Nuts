@@ -5,6 +5,7 @@ import { Package, Tag } from "lucide-react";
 
 import { useCart } from "@/hooks/useCart";
 import { formatPkr, type Bundle } from "@/lib/catalog";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 /**
  * HAFIZ NUTS - bundle card.
@@ -36,6 +37,13 @@ export default function BundleCard({
       size: `${bundle.unitCount} × ${bundle.unitSize}`,
       pricePkr: bundle.pricePkr,
       image: image ?? bundle.image,
+    });
+    trackTikTokEvent("AddToCart", {
+      contents: [
+        { content_id: bundle.id, content_name: bundle.title, quantity: 1, price: bundle.pricePkr },
+      ],
+      value: bundle.pricePkr,
+      currency: "PKR",
     });
   };
 
