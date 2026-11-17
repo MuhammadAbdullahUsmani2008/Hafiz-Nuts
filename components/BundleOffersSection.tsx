@@ -44,12 +44,13 @@ export default function BundleOffersSection() {
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 sm:gap-6 sm:px-6 lg:grid-cols-4">
         {BUNDLES.map((bundle) => (
           <BundleCard
             key={bundle.id}
             bundle={bundle}
             image={resolvePublicImage(bundle.imageCandidates)}
+            compactMobile
           />
         ))}
       </div>

@@ -22,9 +22,12 @@ import { trackTikTokEvent } from "@/lib/tiktokPixel";
 export default function BundleCard({
   bundle,
   image,
+  compactMobile = false,
 }: {
   bundle: Bundle;
   image: string | null;
+  /** Tighter padding and type below `sm`, for two-up phone grids. */
+  compactMobile?: boolean;
 }) {
   const { addItem } = useCart();
 
@@ -49,7 +52,9 @@ export default function BundleCard({
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-[#E8DFC8]/70 bg-white shadow-sm transition-shadow hover:shadow-md">
-      <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-t-xl bg-[#FAF6F0] p-4">
+      <div
+        className={`relative flex aspect-square items-center justify-center overflow-hidden rounded-t-xl bg-[#FAF6F0] ${compactMobile ? "p-2 sm:p-4" : "p-4"}`}
+      >
         {image ? (
           <Image
             src={image}
@@ -76,13 +81,19 @@ export default function BundleCard({
           Deep green reads as "deal" against the warm cream and bronze card,
           and the drop shadow keeps it legible over any photograph.
         */}
-        <span className="absolute top-3 left-3 rounded-full bg-[#1B4332] px-3 py-1 text-xs font-bold tracking-wider text-white uppercase shadow-[0_2px_6px_rgba(0,0,0,0.25)]">
+        <span
+          className={`absolute rounded-full bg-[#1B4332] font-bold tracking-wider text-white uppercase shadow-[0_2px_6px_rgba(0,0,0,0.25)] ${compactMobile ? "top-2 left-2 px-2 py-0.5 text-[10px] sm:top-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs" : "top-3 left-3 px-3 py-1 text-xs"}`}
+        >
           Save {formatPkr(savingsPkr)}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 pt-3 pb-4">
-        <h3 className="mt-3 text-base font-semibold text-[#2A170D]">
+      <div
+        className={`flex flex-1 flex-col ${compactMobile ? "px-2.5 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4" : "px-4 pt-3 pb-4"}`}
+      >
+        <h3
+          className={`font-semibold text-[#2A170D] ${compactMobile ? "mt-1 text-sm leading-snug sm:mt-3 sm:text-base" : "mt-3 text-base"}`}
+        >
           {bundle.title}
         </h3>
         <p className="mt-0.5 text-xs font-medium text-[#8C5228]">
@@ -93,21 +104,23 @@ export default function BundleCard({
           Compare-at price struck through in muted gray, then the offer price
           beside it in brand brown. `gap-2` keeps them from running together.
         */}
-        <div className="mt-2 flex items-baseline gap-2">
-          <del className="text-[13px] font-medium text-[#717171] md:text-[14px]">
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-2">
+          <del className="text-[12px] font-medium text-[#717171] md:text-[14px]">
             {formatPkr(bundle.compareAtPricePkr)}
           </del>
-          <span className="text-base font-bold text-[#2A1810] md:text-lg">
+          <span
+            className={`font-bold text-[#2A1810] md:text-lg ${compactMobile ? "text-sm sm:text-base" : "text-base"}`}
+          >
             {formatPkr(bundle.pricePkr)}
           </span>
         </div>
 
         {/* `mt-auto` keeps every button on one line across the row, whatever the title wraps to. */}
-        <div className="mt-auto pt-4">
+        <div className={`mt-auto ${compactMobile ? "pt-3 sm:pt-4" : "pt-4"}`}>
           <button
             type="button"
             onClick={handleOrderBundle}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7A451F] px-4 py-2.5 text-xs font-medium text-white transition-colors hover:bg-[#603516] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F] md:text-sm"
+            className={`flex w-full items-center justify-center rounded-xl bg-[#7A451F] py-2.5 text-xs ${compactMobile ? "gap-1.5 px-2 sm:gap-2 sm:px-4" : "gap-2 px-4"} font-medium text-white transition-colors hover:bg-[#603516] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F] md:text-sm`}
           >
             <Tag className="h-4 w-4" aria-hidden />
             Order Bundle

@@ -1,4 +1,6 @@
 import Image from "next/image";
+
+import InfiniteCarousel from "@/components/InfiniteCarousel";
 import type { LucideIcon } from "lucide-react";
 import {
   Headphones,
@@ -113,27 +115,36 @@ export default function WhyChooseUsSection() {
           </p>
         </header>
 
-        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, title, copy }) => (
-            <li
-              key={title}
-              className="flex items-start gap-4 rounded-2xl border border-[#E8DFC8] bg-[#FAF6F0] p-6 shadow-lg transition-transform duration-300 hover:-translate-y-1"
-            >
-              <Icon
-                className="mt-1 h-8 w-8 shrink-0 text-[#7A451F]"
-                aria-hidden
-              />
-              <div>
-                <h3 className="text-base font-bold text-[#2A170D] md:text-lg">
-                  {title}
-                </h3>
-                <p className="mt-1 text-xs leading-snug text-[#5C4333] md:text-sm">
-                  {copy}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/*
+          Phones: one card at a time, endless and auto-advancing (see
+          `InfiniteCarousel`). From `md` it is the plain 2/3-column grid.
+        */}
+        <InfiniteCarousel
+          label="Why choose HAFIZ NUTS"
+          items={FEATURES.map(({ icon: Icon, title, copy }) => ({
+            key: title,
+            node: (
+              <>
+                <Icon
+                  className="mt-1 h-8 w-8 shrink-0 text-[#7A451F]"
+                  aria-hidden
+                />
+                <div>
+                  <h3 className="text-base font-bold text-[#2A170D] md:text-lg">
+                    {title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-snug text-[#5C4333] md:text-sm">
+                    {copy}
+                  </p>
+                </div>
+              </>
+            ),
+          }))}
+          autoplayMs={4500}
+          listClassName="gap-4 md:gap-6"
+          gridFromMd="md:my-0 md:grid md:grid-cols-2 md:overflow-visible md:py-0 lg:grid-cols-3"
+          itemClassName="flex w-full items-start gap-4 rounded-2xl border border-[#E8DFC8] bg-[#FAF6F0] p-6 shadow-lg md:w-auto md:transition-transform md:duration-300 md:hover:-translate-y-1"
+        />
       </div>
     </section>
   );
