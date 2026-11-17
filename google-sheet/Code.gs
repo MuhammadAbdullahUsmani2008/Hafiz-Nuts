@@ -23,7 +23,8 @@ var HEADERS = [
   "Items", "Total (PKR)", "Payment", "Notes", "Status",
 ];
 var STATUSES = ["New", "Confirmed", "Shipped", "Delivered", "Cancelled"];
-var RECENT_COUNT = 5; // orders shown per tab on the admin page
+var FINISHED_LIMIT = 10; // Delivered and Cancelled orders shown on the admin page
+var LIMITS = { Delivered: FINISHED_LIMIT, Cancelled: FINISHED_LIMIT }; // others: no limit
 
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -143,22 +144,20 @@ function doGet(e) {
       }
     });
 
-    // Newest first: the latest RECENT_COUNT orders overall ("All" tab) and the
-    // latest RECENT_COUNT of each status (one tab per status).
-    var recent = [];
+    // Newest first. Open orders (New, Confirmed, Shipped) are always ALL listed
+    // so none get buried; finished ones (Delivered, Cancelled) keep only the
+    // latest FINISHED_LIMIT. "All" = everything the status tabs show, merged.
     var recentByStatus = {};
     STATUSES.forEach(function (s) { recentByStatus[s] = []; });
+    var picked = [];
 
     for (var i = rows.length - 1; i >= 0; i--) {
       var r = rows[i];
       var status = String(r[10] || "New");
       var bucket = recentByStatus[status];
-      var needAll = recent.length < RECENT_COUNT;
-      var needStatus = bucket && bucket.length < RECENT_COUNT;
-      if (!needAll && !needStatus) {
-        if (STATUSES.every(function (s) { return recentByStatus[s].length >= RECENT_COUNT; })) break;
-        continue;
-      }
+      if (!bucket) continue; // unknown status text: ignore
+      var limit = LIMITS[status];
+      if (limit && bucket.length >= limit) continue;
       var date = r[0] instanceof Date ? r[0] : new Date(r[0]);
       var order = {
         date: date.toISOString(),
@@ -171,9 +170,12 @@ function doGet(e) {
         payment: String(r[8]),
         status: status,
       };
-      if (needAll) recent.push(order);
-      if (needStatus) bucket.push(order);
+      bucket.push(order);
+      picked.push({ row: i, order: order });
     }
+
+    picked.sort(function (x, y) { return y.row - x.row; });
+    var recent = picked.map(function (p) { return p.order; });
 
     return json_({
       ok: true, counts: counts, byStatus: byStatus, revenue: revenue,

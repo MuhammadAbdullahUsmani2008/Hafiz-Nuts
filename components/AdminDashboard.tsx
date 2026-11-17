@@ -24,8 +24,12 @@ type View =
 
 const STATUS_ORDER = ["New", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 const TABS = ["All", ...STATUS_ORDER] as const;
-/** Must match RECENT_COUNT in google-sheet/Code.gs. */
-const ORDERS_PER_TAB = 5;
+/**
+ * Open orders are always all listed; finished ones show only the latest few.
+ * Must match LIMITS in google-sheet/Code.gs.
+ */
+const FINISHED_LIMIT = 10;
+const LIMITED_TABS: readonly string[] = ["Delivered", "Cancelled"];
 
 const CARD = "rounded-2xl border border-[#E8DFC8]/70 bg-white p-5 shadow-sm";
 const BUTTON =
@@ -212,7 +216,9 @@ export default function AdminDashboard() {
     tab === "All"
       ? stats.recent
       : (stats.recentByStatus?.[tab] ??
-        stats.recent.filter((order) => order.status === tab).slice(0, ORDERS_PER_TAB));
+        stats.recent
+          .filter((order) => order.status === tab)
+          .slice(0, LIMITED_TABS.includes(tab) ? FINISHED_LIMIT : undefined));
 
   const tiles = [
     { label: "Total orders", value: stats.counts.total },
@@ -273,7 +279,11 @@ export default function AdminDashboard() {
       <div className={`${CARD} overflow-x-auto p-0`}>
         <div className="px-5 pt-4 pb-2">
           <h2 className="text-sm font-semibold text-[#2A170D]">
-            Latest {ORDERS_PER_TAB} orders{tab === "All" ? "" : ` - ${tab}`}
+            {tab === "All"
+              ? "All open orders + latest finished"
+              : LIMITED_TABS.includes(tab)
+                ? `Latest ${FINISHED_LIMIT} ${tab} orders`
+                : `All ${tab} orders`}
           </h2>
           <div role="tablist" aria-label="Filter orders by status" className="mt-3 flex flex-wrap gap-2">
             {TABS.map((name) => {
