@@ -3,6 +3,9 @@ import { Caveat, Inter, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
+import GoogleTagManager, {
+  GoogleTagManagerNoscript,
+} from "@/components/GoogleTagManager";
 import Header from "@/components/Header";
 import TikTokPixel from "@/components/TikTokPixel";
 import { CartProvider } from "@/context/CartContext";
@@ -98,7 +101,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en-PK"
       className={`${inter.variable} ${playfair.variable} ${caveat.variable} h-full`}
     >
+      <head>
+        <GoogleTagManager />
+      </head>
       <body className="flex min-h-full flex-col">
+        <GoogleTagManagerNoscript />
         {/*
           The cart context wraps the whole app so the header badge, the
           product/bundle buttons, and the drawer all share one source of

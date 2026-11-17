@@ -98,3 +98,41 @@ targets, cart button and product rows are placeholders to wire up to real data.
   re-add it deliberately if dark mode is wanted.
 - Next.js 16 has Cache Components enabled (`next.config.ts`). Values like
   `new Date()` cannot be read during prerendering - the build fails if they are.
+
+## Operations
+
+### Deploying (Cloudflare Workers via OpenNext)
+
+```bash
+npm run deploy   # generates images, builds, uploads to Cloudflare
+npm run preview  # same build, served locally first
+```
+
+Live site: https://hafiz-nuts.hafiznuts435.workers.dev (worker `hafiz-nuts`,
+configured in [`wrangler.jsonc`](wrangler.jsonc)). Deploy from a clean, committed
+`master` so what is live matches what is in git. `NEXT_PUBLIC_*` values are
+inlined at **build** time, so changing one needs a redeploy.
+
+### Environment variables (`.env`, git-ignored)
+
+| Variable                       | Purpose                                  |
+| ------------------------------ | ---------------------------------------- |
+| `NEXT_PUBLIC_TIKTOK_PIXEL_ID`  | TikTok Pixel (events in `lib/tiktokPixel`) |
+| `NEXT_PUBLIC_GTM_ID`           | Google Tag Manager container; unset = off |
+
+### Everyday edits
+
+- **Add a customer review:** append to `REVIEWS` in
+  [`components/TestimonialsSection.tsx`](components/TestimonialsSection.tsx)
+  (set `rtl: true` for Urdu). Quote it exactly as sent; skip duplicates.
+- **Change featured homepage products:** flip `featured` in `lib/catalog.ts`.
+- **Homepage layout:** products are 2 x 2 on phones (`compactMobile` on
+  `ProductGrid`); testimonials are a swipe carousel on phones, arrows from `md`.
+
+### Open items
+
+- [ ] Next.js `16.4.x` is flagged by `npm audit` (moderate, "use cache" +
+      `unstable_cache` info disclosure). Fix is `next@16.4.6`; upgrade, then
+      rebuild and redeploy.
+- [ ] Customer avatars are initials only - no photography in `public/`.
+- [ ] Verify GTM/TikTok events fire on the live site (Tag Assistant / Pixel Helper).

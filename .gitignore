@@ -43,3 +43,6 @@ next-env.d.ts
 # opennext / cloudflare
 .open-next
 .wrangler
+
+# deploy tool build logs
+*.build.log
