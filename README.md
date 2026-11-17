@@ -150,3 +150,24 @@ admin refresh, no polling. Setup: [`google-sheet/SETUP.md`](google-sheet/SETUP.m
 - [ ] Finish the order sheet setup (`google-sheet/SETUP.md`), then place a test order.
 - [ ] Customer avatars are initials only - no photography in `public/`.
 - [ ] Verify GTM/TikTok events fire on the live site (Tag Assistant / Pixel Helper).
+
+## Security
+
+In the code (see `next.config.ts`, `lib/adminAuth.ts`):
+- Security headers on every page: anti-framing, HSTS, `nosniff`, referrer and
+  permissions policies. No `script-src` CSP on purpose - GTM/TikTok load third-party
+  scripts, and a strict list would silently break tracking.
+- `/admin` and `/api/*`: `no-store`, `noindex`. Admin sessions are signed, expire
+  after 12 hours and die when `ADMIN_PASSWORD` changes. Cookies are HttpOnly,
+  Secure, SameSite=Strict. Status changes also check the request's origin.
+- `/api/orders` only accepts same-origin posts, caps sizes and recomputes totals;
+  the Google Sheet stores customer text as plain text (no formula injection).
+- Secrets live only in Cloudflare secrets / local `.env` (git-ignored) - none are
+  in git history.
+
+Outside the code (Cloudflare / Google / GitHub dashboards) - keep these on:
+- [ ] Two-step verification on Cloudflare, Google, GitHub and the domain registrar.
+- [ ] Cloudflare Access (free) in front of `/admin*` and `/api/admin/*`.
+- [ ] Cloudflare rate-limit rules on `/api/admin/login` and `/api/orders`.
+- [ ] Google Sheet kept private; Apps Script deployed as "Execute as: Me".
+- [ ] Run `npm audit --omit=dev` monthly; upgrade Next.js patch releases.

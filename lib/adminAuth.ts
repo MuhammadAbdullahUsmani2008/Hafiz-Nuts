@@ -2,15 +2,15 @@
  * HAFIZ NUTS - admin sign-in helpers.
  *
  * One shared password (`ADMIN_PASSWORD`, a Cloudflare secret). A successful
- * login sets an HttpOnly cookie holding an HMAC of that password, so the cookie
- * never contains the password itself and changing the password signs everyone
- * out. Uses Web Crypto only, so it runs unchanged on Cloudflare Workers.
+ * login sets an HttpOnly cookie holding a signed expiry time, so the cookie
+ * never contains the password, expires after 12 hours, and changing the
+ * password signs everyone out. Uses Web Crypto only, so it runs unchanged on Cloudflare Workers.
  *
  * Per request this is one HMAC and a string compare - negligible CPU.
  */
 
 export const ADMIN_COOKIE = "hn_admin";
-export const ADMIN_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+export const ADMIN_COOKIE_MAX_AGE = 60 * 60 * 12; // 12 hours
 
 const encoder = new TextEncoder();
 
@@ -38,18 +38,30 @@ export function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-/** The cookie value for a correct password, or null if admin is not configured. */
-export async function adminToken(): Promise<string | null> {
+/**
+ * A fresh session token: `<expiry>.<signature>`. The signature covers the
+ * expiry, so it can't be extended by editing the cookie, and it is keyed by
+ * the password, so changing `ADMIN_PASSWORD` invalidates every session.
+ */
+export async function issueAdminToken(): Promise<string | null> {
   const password = process.env.ADMIN_PASSWORD;
   if (!password) return null;
-  return hmacHex(password, "hafiz-nuts-admin-v1");
+  const expires = Date.now() + ADMIN_COOKIE_MAX_AGE * 1000;
+  return `${expires}.${await hmacHex(password, `hafiz-nuts-admin-v2:${expires}`)}`;
 }
 
-/** True when the request carries a valid admin cookie. */
+/** True when the request carries a valid, unexpired admin cookie. */
 export async function isAdminRequest(request: {
   cookies: { get(name: string): { value: string } | undefined };
 }): Promise<boolean> {
-  const expected = await adminToken();
-  const actual = request.cookies.get(ADMIN_COOKIE)?.value;
-  return Boolean(expected && actual && safeEqual(actual, expected));
+  const password = process.env.ADMIN_PASSWORD;
+  const token = request.cookies.get(ADMIN_COOKIE)?.value;
+  if (!password || !token) return false;
+
+  const [expiresText, signature = ""] = token.split(".");
+  const expires = Number(expiresText);
+  if (!Number.isFinite(expires) || expires < Date.now()) return false;
+
+  const expected = await hmacHex(password, `hafiz-nuts-admin-v2:${expires}`);
+  return safeEqual(signature, expected);
 }

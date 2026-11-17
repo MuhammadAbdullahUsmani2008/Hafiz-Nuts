@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import {
   ADMIN_COOKIE,
   ADMIN_COOKIE_MAX_AGE,
-  adminToken,
+  issueAdminToken,
   safeEqual,
 } from "@/lib/adminAuth";
 
@@ -21,7 +21,7 @@ function secureFlag() {
 
 export async function POST(request: NextRequest) {
   const password = process.env.ADMIN_PASSWORD;
-  const token = await adminToken();
+  const token = await issueAdminToken();
   if (!password || !token) {
     return Response.json({ ok: false, error: "not-configured" }, { status: 503 });
   }
