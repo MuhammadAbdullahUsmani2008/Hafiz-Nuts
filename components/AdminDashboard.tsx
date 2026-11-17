@@ -23,6 +23,9 @@ type View =
   | { kind: "ready"; stats: AdminStats };
 
 const STATUS_ORDER = ["New", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+const TABS = ["All", ...STATUS_ORDER] as const;
+/** Must match RECENT_COUNT in google-sheet/Code.gs. */
+const ORDERS_PER_TAB = 5;
 
 const CARD = "rounded-2xl border border-[#E8DFC8]/70 bg-white p-5 shadow-sm";
 const BUTTON =
@@ -47,6 +50,7 @@ export default function AdminDashboard() {
   const [signingIn, setSigningIn] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [statusError, setStatusError] = useState("");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("All");
 
   const load = useCallback(async () => {
     setRefreshing(true);
@@ -200,6 +204,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const confirmed =
+    (stats.byStatus.Confirmed ?? 0) + (stats.byStatus.Shipped ?? 0) + (stats.byStatus.Delivered ?? 0);
+
+  /* Older scripts only send `recent`; fall back to filtering it. */
+  const shown =
+    tab === "All"
+      ? stats.recent
+      : (stats.recentByStatus?.[tab] ??
+        stats.recent.filter((order) => order.status === tab).slice(0, ORDERS_PER_TAB));
+
   const tiles = [
     { label: "Total orders", value: stats.counts.total },
     { label: "Today", value: stats.counts.today },
@@ -242,27 +256,57 @@ export default function AdminDashboard() {
           <p className="mt-1 text-xs text-[#5C4333]">All time: {formatPkr(stats.revenue.allTime)}</p>
         </div>
         <div className={CARD}>
-          <p className="text-xs font-semibold text-[#8C5228]">By status</p>
-          <ul className="mt-2 flex flex-wrap gap-2">
-            {STATUS_ORDER.map((status) => (
-              <li key={status} className="rounded-full bg-[#FAF6F0] px-3 py-1 text-xs text-[#2A170D] ring-1 ring-[#E8DFC8]">
-                {status}: <strong>{stats.byStatus[status] ?? 0}</strong>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-[#5C4333]">Change an order&apos;s status from the list below.</p>
+          <p className="text-xs font-semibold text-[#8C5228]">Confirmation progress</p>
+          <div className="mt-1 flex gap-8">
+            <div>
+              <p className="text-2xl font-bold text-[#2A170D]">{stats.byStatus.New ?? 0}</p>
+              <p className="text-xs text-[#5C4333]">Waiting to confirm</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[#2A170D]">{confirmed}</p>
+              <p className="text-xs text-[#5C4333]">Confirmed (incl. shipped/delivered)</p>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className={`${CARD} overflow-x-auto p-0`}>
-        <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-[#2A170D]">Latest orders</h2>
+        <div className="px-5 pt-4 pb-2">
+          <h2 className="text-sm font-semibold text-[#2A170D]">
+            Latest {ORDERS_PER_TAB} orders{tab === "All" ? "" : ` - ${tab}`}
+          </h2>
+          <div role="tablist" aria-label="Filter orders by status" className="mt-3 flex flex-wrap gap-2">
+            {TABS.map((name) => {
+              const count = name === "All" ? stats.counts.total : (stats.byStatus[name] ?? 0);
+              const selected = tab === name;
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setTab(name)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F] ${
+                    selected
+                      ? "bg-[#7A451F] text-white ring-[#7A451F]"
+                      : "bg-[#FAF6F0] text-[#2A170D] ring-[#E8DFC8] hover:bg-white"
+                  }`}
+                >
+                  {name} <span className="font-bold">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
         {statusError && (
           <p role="alert" className="px-5 pb-2 text-xs text-red-700">
             {statusError}
           </p>
         )}
-        {stats.recent.length === 0 ? (
-          <p className="px-5 pb-5 text-sm text-[#5C4333]">No orders yet. New orders appear here.</p>
+        {shown.length === 0 ? (
+          <p className="px-5 pb-5 text-sm text-[#5C4333]">
+            {tab === "All" ? "No orders yet. New orders appear here." : `No ${tab} orders.`}
+          </p>
         ) : (
           <table className="w-full min-w-[640px] text-left text-xs">
             <thead className="text-[#8C5228]">
@@ -275,7 +319,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {stats.recent.map((order) => (
+              {shown.map((order) => (
                 <tr key={order.orderNo} className="border-t border-[#E8DFC8]/60 align-top text-[#2A170D]">
                   <td className="px-3 py-2 pl-5 font-semibold">{order.orderNo}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{formatDate(order.date)}</td>

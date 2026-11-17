@@ -23,7 +23,7 @@ var HEADERS = [
   "Items", "Total (PKR)", "Payment", "Notes", "Status",
 ];
 var STATUSES = ["New", "Confirmed", "Shipped", "Delivered", "Cancelled"];
-var RECENT_COUNT = 30;
+var RECENT_COUNT = 5; // orders shown per tab on the admin page
 
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -143,9 +143,24 @@ function doGet(e) {
       }
     });
 
-    var recent = rows.slice(-RECENT_COUNT).reverse().map(function (r) {
+    // Newest first: the latest RECENT_COUNT orders overall ("All" tab) and the
+    // latest RECENT_COUNT of each status (one tab per status).
+    var recent = [];
+    var recentByStatus = {};
+    STATUSES.forEach(function (s) { recentByStatus[s] = []; });
+
+    for (var i = rows.length - 1; i >= 0; i--) {
+      var r = rows[i];
+      var status = String(r[10] || "New");
+      var bucket = recentByStatus[status];
+      var needAll = recent.length < RECENT_COUNT;
+      var needStatus = bucket && bucket.length < RECENT_COUNT;
+      if (!needAll && !needStatus) {
+        if (STATUSES.every(function (s) { return recentByStatus[s].length >= RECENT_COUNT; })) break;
+        continue;
+      }
       var date = r[0] instanceof Date ? r[0] : new Date(r[0]);
-      return {
+      var order = {
         date: date.toISOString(),
         orderNo: String(r[1]),
         name: String(r[2]),
@@ -154,11 +169,16 @@ function doGet(e) {
         items: String(r[6]),
         total: Number(r[7]) || 0,
         payment: String(r[8]),
-        status: String(r[10] || "New"),
+        status: status,
       };
-    });
+      if (needAll) recent.push(order);
+      if (needStatus) bucket.push(order);
+    }
 
-    return json_({ ok: true, counts: counts, byStatus: byStatus, revenue: revenue, recent: recent });
+    return json_({
+      ok: true, counts: counts, byStatus: byStatus, revenue: revenue,
+      recent: recent, recentByStatus: recentByStatus,
+    });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   }

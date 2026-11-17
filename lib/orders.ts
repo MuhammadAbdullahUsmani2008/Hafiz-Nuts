@@ -41,7 +41,10 @@ export type AdminStats = {
   };
   byStatus: Record<string, number>;
   revenue: { allTime: number; thisMonth: number };
+  /** Newest orders overall (the "All" tab). */
   recent: AdminOrder[];
+  /** Newest orders per status; absent if the Apps Script is an older version. */
+  recentByStatus?: Record<string, AdminOrder[]>;
 };
 
 const TIMEOUT_MS = 8000;
