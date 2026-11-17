@@ -119,6 +119,19 @@ inlined at **build** time, so changing one needs a redeploy.
 | ------------------------------ | ---------------------------------------- |
 | `NEXT_PUBLIC_TIKTOK_PIXEL_ID`  | TikTok Pixel (events in `lib/tiktokPixel`) |
 | `NEXT_PUBLIC_GTM_ID`           | Google Tag Manager container; unset = off |
+| `ORDERS_SCRIPT_URL` (secret)   | Google Apps Script web app that stores orders |
+| `ORDERS_SECRET` (secret)       | Shared secret, must match `SECRET` in `google-sheet/Code.gs` |
+| `ADMIN_PASSWORD` (secret)      | Password for `/admin` |
+
+Secrets are runtime values set with `npx wrangler secret put <NAME>`, not read
+from `.env` on Cloudflare. See [`.env.example`](.env.example).
+
+### Order log and admin page
+
+Checkout still hands the order to WhatsApp, and also saves it to a Google Sheet
+through `/api/orders` -> Apps Script. `/admin` (password-protected, read-only)
+shows order counts, sales and the latest orders. One request per order / per
+admin refresh, no polling. Setup: [`google-sheet/SETUP.md`](google-sheet/SETUP.md).
 
 ### Everyday edits
 
@@ -134,5 +147,6 @@ inlined at **build** time, so changing one needs a redeploy.
 - [ ] Next.js `16.4.x` is flagged by `npm audit` (moderate, "use cache" +
       `unstable_cache` info disclosure). Fix is `next@16.4.6`; upgrade, then
       rebuild and redeploy.
+- [ ] Finish the order sheet setup (`google-sheet/SETUP.md`), then place a test order.
 - [ ] Customer avatars are initials only - no photography in `public/`.
 - [ ] Verify GTM/TikTok events fire on the live site (Tag Assistant / Pixel Helper).

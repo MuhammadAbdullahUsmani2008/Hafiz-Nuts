@@ -355,6 +355,32 @@ export default function CheckoutClient() {
      * `clearCart()` runs regardless of whether the popup survives, so
      * localStorage is purged and the cart badge drops in the same tick.
      */
+    /*
+     * Log the order in the Google Sheet. Fire-and-forget: it is not awaited,
+     * `keepalive` lets it finish even if the tab is switched to WhatsApp, and
+     * a failure is ignored on purpose - the WhatsApp message is the order, the
+     * sheet is only the brand's record of it.
+     */
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        notes: form.notes,
+        paymentMethod,
+        items: items.map(({ name, size, quantity, pricePkr }) => ({
+          name,
+          size,
+          quantity,
+          pricePkr,
+        })),
+      }),
+    }).catch(() => {});
+
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 
     setReceipt({
