@@ -11,8 +11,8 @@ import type { AdminStats } from "@/lib/orders";
  *
  * Shows order counts and revenue from the Google Sheet. Numbers are fetched
  * once on load and again only when the admin presses Refresh - no polling, so
- * an open tab costs the Worker nothing. Orders themselves are edited in the
- * sheet (e.g. changing Status), which is the source of truth.
+ * an open tab costs the Worker nothing. The only write is the per-order Status
+ * dropdown, which updates the sheet (still the source of truth).
  */
 
 type View =
@@ -45,6 +45,8 @@ export default function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [password, setPassword] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState("");
 
   const load = useCallback(async () => {
     setRefreshing(true);
@@ -172,6 +174,32 @@ export default function AdminDashboard() {
   }
 
   const { stats } = view;
+
+  /** Saves a new status to the sheet, then updates the page without a reload. */
+  const changeStatus = async (orderNo: string, status: string) => {
+    setSaving(orderNo);
+    setStatusError("");
+    try {
+      const response = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderNo, status }),
+      });
+      if (response.status === 401) {
+        setView({ kind: "login" });
+        return;
+      }
+      if (!response.ok) throw new Error("failed");
+
+      /* Re-read from the sheet so counts and sales (cancelled excluded) stay exact. */
+      await load();
+    } catch {
+      setStatusError(`Could not update ${orderNo}. Nothing was changed - please try again.`);
+    } finally {
+      setSaving(null);
+    }
+  };
+
   const tiles = [
     { label: "Total orders", value: stats.counts.total },
     { label: "Today", value: stats.counts.today },
@@ -222,12 +250,17 @@ export default function AdminDashboard() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-[#5C4333]">Change an order&apos;s Status in the sheet, then press Refresh.</p>
+          <p className="mt-2 text-xs text-[#5C4333]">Change an order&apos;s status from the list below.</p>
         </div>
       </div>
 
       <div className={`${CARD} overflow-x-auto p-0`}>
         <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-[#2A170D]">Latest orders</h2>
+        {statusError && (
+          <p role="alert" className="px-5 pb-2 text-xs text-red-700">
+            {statusError}
+          </p>
+        )}
         {stats.recent.length === 0 ? (
           <p className="px-5 pb-5 text-sm text-[#5C4333]">No orders yet. New orders appear here.</p>
         ) : (
@@ -255,7 +288,21 @@ export default function AdminDashboard() {
                   <td className="px-3 py-2 whitespace-pre-line">{order.items}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{formatPkr(order.total)}</td>
                   <td className="px-3 py-2">{order.payment}</td>
-                  <td className="px-3 py-2 pr-5">{order.status}</td>
+                  <td className="px-3 py-2 pr-5">
+                    <select
+                      value={STATUS_ORDER.includes(order.status) ? order.status : "New"}
+                      onChange={(event) => changeStatus(order.orderNo, event.target.value)}
+                      disabled={saving === order.orderNo}
+                      aria-label={`Status of ${order.orderNo}`}
+                      className="rounded-md border border-[#E8DFC8] bg-white px-2 py-1 text-xs text-[#2A170D] focus:ring-1 focus:ring-[#7A451F] focus:outline-none disabled:opacity-50"
+                    >
+                      {STATUS_ORDER.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>

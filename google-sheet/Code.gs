@@ -58,6 +58,21 @@ function doPost(e) {
     lock.waitLock(10000);
     try {
       var sheet = getSheet_();
+
+      // Admin page: change one order's Status.
+      if (body.action === "setStatus") {
+        if (STATUSES.indexOf(body.status) === -1) return json_({ ok: false, error: "bad status" });
+        var last = sheet.getLastRow();
+        var numbers = last > 1 ? sheet.getRange(2, 2, last - 1, 1).getValues() : [];
+        for (var i = 0; i < numbers.length; i++) {
+          if (String(numbers[i][0]) === String(body.orderNo)) {
+            sheet.getRange(i + 2, 11).setValue(body.status);
+            return json_({ ok: true });
+          }
+        }
+        return json_({ ok: false, error: "order not found" });
+      }
+
       var orderNo = "HN-" + ("0000" + sheet.getLastRow()).slice(-4); // header row = 1
       var row = sheet.getLastRow() + 1;
 

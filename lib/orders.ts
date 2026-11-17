@@ -85,6 +85,30 @@ export async function saveOrder(order: NewOrder): Promise<void> {
   if (!result.ok) throw new Error(result.error ?? "Sheet rejected the order");
 }
 
+export const ORDER_STATUSES: readonly OrderStatus[] = [
+  "New",
+  "Confirmed",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+];
+
+/** Changes one order's Status in the sheet. Throws on any failure. */
+export async function setOrderStatus(orderNo: string, status: OrderStatus): Promise<void> {
+  const cfg = config();
+  if (!cfg) throw new Error("Orders sheet is not connected");
+
+  const response = await fetch(cfg.url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ secret: cfg.secret, action: "setStatus", orderNo, status }),
+    redirect: "follow",
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  const result = (await response.json()) as { ok?: boolean; error?: string };
+  if (!result.ok) throw new Error(result.error ?? "Sheet rejected the change");
+}
+
 /** Reads the dashboard numbers (computed inside the script). Throws on failure. */
 export async function fetchStats(): Promise<AdminStats> {
   const cfg = config();
