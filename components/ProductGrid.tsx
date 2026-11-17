@@ -17,17 +17,27 @@ import { resolvePublicImage } from "@/lib/resolveImage";
 export default function ProductGrid({
   products,
   className,
+  compactMobile = false,
 }: {
   products: readonly Product[];
   className: string;
+  /**
+   * Two cards per row on phones (instead of one full-width card), with the
+   * cards tightened to fit. Used by the homepage so all four featured packs
+   * are visible at once as a 2 x 2 block.
+   */
+  compactMobile?: boolean;
 }) {
   return (
-    <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${className}`}>
+    <div
+      className={`grid ${compactMobile ? "grid-cols-2 gap-3" : "grid-cols-1 gap-6"} sm:grid-cols-2 sm:gap-6 ${className}`}
+    >
       {products.map((product) => (
         <ProductCard
           key={product.id}
           product={product}
           image={resolvePublicImage(product.imageCandidates)}
+          compactMobile={compactMobile}
         />
       ))}
     </div>

@@ -1,19 +1,23 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Leaf, Star } from "lucide-react";
 
 /**
  * HAFIZ NUTS - "What Our Customers Say".
  *
- * ## The arrows are decoration, not controls
+ * ## A real carousel
  *
- * The three reviews are static and the grid shows all of them at once from
- * `md`, so there is no second page for the reference layout's chevrons to
- * move between. They used to be `<button>`s with accessible names and no
- * behaviour, which promised "Previous reviews" to a screen-reader or keyboard
- * user and then did nothing when activated. They are now decorative spans
- * carrying the exact same chrome - size, ring, shadow, hover tint - so the
- * layout is unchanged while the false affordance is gone. If a second page of
- * reviews ever lands, turn them back into buttons and wire real paging.
- * They only show from `lg`, where the grid reserves side padding for them.
+ * The reviews sit in one horizontally scrolling, scroll-snapping strip:
+ *
+ * - phones show ONE review at a time and the visitor swipes to the next
+ *   (native touch scrolling + `snap-mandatory`, so it always settles on a card);
+ * - `md` shows two and `lg` three at a time;
+ * - from `md`, the chevrons are real buttons that move the strip by one card,
+ *   and disable themselves at either end.
+ *
+ * Adding a review is just appending to `REVIEWS` - the strip, the arrows and
+ * the phone counter all adapt to however many there are.
  *
  * Avatars: no customer photography exists in `public/`, so each card falls back
  * to the customer's initials on the neutral disc the layout calls for. Drop
@@ -26,6 +30,8 @@ type Review = {
   city: string;
   /** Initials shown on the avatar disc until real photography lands. */
   initials: string;
+  /** Urdu (right-to-left) text: sets `dir`/`lang` on the quote. */
+  rtl?: boolean;
 };
 
 /*
@@ -54,12 +60,75 @@ const REVIEWS: readonly Review[] = [
     city: "Rahim Yar Khan",
     initials: "Z",
   },
+  {
+    quote:
+      "I ordered six boxes of mixed nuts - one without honey and one with honey, and I absolutely loved both! They are super crunchy, crispy, fresh, and delicious. The honey-coated nuts have such a lovely taste, while the plain ones are equally enjoyable. I really had a great time eating them! Everything was neatly packed, clean, and hygienic, which I really appreciate. Overall, I’m very happy with my order and would definitely recommend them. ❤️",
+    name: "Umme Mustafa",
+    city: "Rahim Yar Khan",
+    initials: "U",
+  },
+  {
+    quote:
+      "ڈرائی فروٹ کا معیار واقعی بہترین ہے۔ تمام آئٹمز تازہ، صاف ستھرے اور اچھی کوالٹی کے تھے۔ پیکنگ بھی بہت مناسب اور محفوظ تھی، جس کی وجہ سے پروڈکٹ بہترین حالت میں موصول ہوا۔ مجموعی طور پر معیار، ذائقہ اور سروس سے مکمل اطمینان ہوا۔ ⭐⭐⭐⭐⭐",
+    name: "Anam",
+    city: "Rahim Yar Khan",
+    initials: "A",
+    rtl: true,
+  },
+  {
+    quote:
+      "ماشاءاللہ، ڈرائی فروٹ واقعی بہت اچھے اور تازہ تھے۔ ذائقہ اتنا اچھا تھا کہ کھا کر دل خوش ہوگیا۔ ❤️ پیکنگ بھی بہت پیاری اور صاف تھی۔ اچھی کوالٹی کی چیز مناسب انداز میں ملے تو دوبارہ آرڈر کرنے کو دل کرتا ہے۔ ان شاء اللہ دوبارہ بھی ضرور آرڈر کروں گی۔ بہت شکریہ! 🌸",
+    name: "Anam",
+    city: "Rahim Yar Khan",
+    initials: "A",
+    rtl: true,
+  },
 ];
 
 const ARROW =
-  "absolute top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8DFC8] bg-white text-[#7A451F] shadow-sm transition-colors hover:bg-[#FAF6F0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C5228] lg:flex";
+  "absolute top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8DFC8] bg-white text-[#7A451F] shadow-sm transition-colors hover:bg-[#FAF6F0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C5228] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white md:flex";
 
 export default function TestimonialsSection() {
+  const scroller = useRef<HTMLUListElement>(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(REVIEWS.length > 1);
+  const [active, setActive] = useState(0);
+
+  /** Distance between one card's left edge and the next (card width + gap). */
+  const step = useCallback(() => {
+    const first = scroller.current?.children[0] as HTMLElement | undefined;
+    const second = scroller.current?.children[1] as HTMLElement | undefined;
+    if (!first) return 0;
+    return second
+      ? second.offsetLeft - first.offsetLeft
+      : first.getBoundingClientRect().width;
+  }, []);
+
+  const sync = useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const size = step();
+    setCanPrev(el.scrollLeft > 4);
+    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    setActive(size ? Math.round(el.scrollLeft / size) : 0);
+  }, [step]);
+
+  useEffect(() => {
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, [sync]);
+
+  const move = (direction: 1 | -1) => {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    scroller.current?.scrollBy({
+      left: direction * step(),
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  };
+
   return (
     <section
       id="reviews"
@@ -78,20 +147,46 @@ export default function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="relative">
-          <span aria-hidden className={`${ARROW} left-0`}>
-            <ChevronLeft className="h-5 w-5" />
-          </span>
+        <div
+          className="relative"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Customer reviews"
+        >
+          <button
+            type="button"
+            onClick={() => move(-1)}
+            disabled={!canPrev}
+            aria-label="Previous reviews"
+            className={`${ARROW} left-0`}
+          >
+            <ChevronLeft className="h-5 w-5" aria-hidden />
+          </button>
 
-          <span aria-hidden className={`${ARROW} right-0`}>
-            <ChevronRight className="h-5 w-5" />
-          </span>
+          <button
+            type="button"
+            onClick={() => move(1)}
+            disabled={!canNext}
+            aria-label="Next reviews"
+            className={`${ARROW} right-0`}
+          >
+            <ChevronRight className="h-5 w-5" aria-hidden />
+          </button>
 
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:px-16">
-            {REVIEWS.map(({ quote, name, city, initials }) => (
+          {/*
+            `-my-2 py-2` gives the cards' shadows room, since an overflow-x
+            container also clips vertically. The side margin on `md+` keeps the
+            cards clear of the arrows.
+          */}
+          <ul
+            ref={scroller}
+            onScroll={sync}
+            className="-my-2 flex snap-x snap-mandatory gap-4 overflow-x-auto py-2 [scrollbar-width:none] md:mx-14 md:gap-6 [&::-webkit-scrollbar]:hidden"
+          >
+            {REVIEWS.map(({ quote, name, city, initials, rtl }, index) => (
               <li
-                key={name}
-                className="flex items-start gap-4 rounded-2xl border border-[#E8DFC8]/70 bg-white p-6 shadow-sm"
+                key={`${name}-${index}`}
+                className="flex w-full shrink-0 snap-start items-start gap-4 rounded-2xl border border-[#E8DFC8]/70 bg-white p-6 shadow-sm md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
               >
                 <span
                   aria-hidden
@@ -116,7 +211,11 @@ export default function TestimonialsSection() {
                   </div>
 
                   {/* `pre-line` keeps a customer's own line breaks, e.g. after a greeting. */}
-                  <blockquote className="text-xs leading-relaxed whitespace-pre-line text-[#3D2518] md:text-sm">
+                  <blockquote
+                    dir={rtl ? "rtl" : undefined}
+                    lang={rtl ? "ur" : undefined}
+                    className="text-xs leading-relaxed whitespace-pre-line text-[#3D2518] md:text-sm"
+                  >
                     &ldquo;{quote}&rdquo;
                   </blockquote>
 
@@ -129,6 +228,15 @@ export default function TestimonialsSection() {
             ))}
           </ul>
         </div>
+
+        {/* Phone-only position hint, so it's clear there's more to swipe to. */}
+        <p
+          className="mt-4 text-center text-xs text-[#8C5228] md:hidden"
+          aria-hidden
+        >
+          {Math.min(active + 1, REVIEWS.length)} / {REVIEWS.length} &middot;
+          swipe for more
+        </p>
       </div>
     </section>
   );

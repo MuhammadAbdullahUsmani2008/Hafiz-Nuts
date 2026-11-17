@@ -27,9 +27,12 @@ import { trackTikTokEvent } from "@/lib/tiktokPixel";
 export default function ProductCard({
   product,
   image,
+  compactMobile = false,
 }: {
   product: Product;
   image: string | null;
+  /** Tighter padding and type below `sm`, for two-up phone grids. */
+  compactMobile?: boolean;
 }) {
   const { addItem } = useCart();
 
@@ -53,7 +56,9 @@ export default function ProductCard({
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-[#E8DFC8]/70 bg-white shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex aspect-square items-center justify-center overflow-hidden rounded-t-xl bg-[#FAF6F0] p-4">
+      <div
+        className={`flex aspect-square items-center justify-center overflow-hidden rounded-t-xl bg-[#FAF6F0] ${compactMobile ? "p-2 sm:p-4" : "p-4"}`}
+      >
         <Link
           href={`/products/${product.slug}`}
           aria-label={`${product.name} - view details`}
@@ -77,8 +82,12 @@ export default function ProductCard({
         </Link>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 pt-3 pb-4">
-        <h3 className="text-base font-semibold text-[#2A170D]">
+      <div
+        className={`flex flex-1 flex-col ${compactMobile ? "px-2.5 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4" : "px-4 pt-3 pb-4"}`}
+      >
+        <h3
+          className={`font-semibold text-[#2A170D] ${compactMobile ? "text-sm leading-snug sm:text-base" : "text-base"}`}
+        >
           <Link
             href={`/products/${product.slug}`}
             className="transition-colors hover:text-[#7A451F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C5228]"
@@ -94,12 +103,12 @@ export default function ProductCard({
         </p>
 
         {/* `mt-auto` keeps every button on one line across the row, whatever the title wraps to. */}
-        <div className="mt-auto pt-4">
+        <div className={`mt-auto ${compactMobile ? "pt-3 sm:pt-4" : "pt-4"}`}>
           <button
             type="button"
             onClick={handleAddToCart}
             disabled={!product.inStock}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7A451F] px-4 py-2.5 text-xs font-medium text-white transition-colors hover:bg-[#603516] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F] disabled:cursor-not-allowed disabled:bg-[#7A451F]/40 md:text-sm"
+            className={`flex w-full items-center justify-center rounded-xl bg-[#7A451F] py-2.5 text-xs ${compactMobile ? "gap-1.5 px-2 sm:gap-2 sm:px-4" : "gap-2 px-4"} font-medium text-white transition-colors hover:bg-[#603516] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7A451F] disabled:cursor-not-allowed disabled:bg-[#7A451F]/40 md:text-sm`}
           >
             <ShoppingCart className="h-4 w-4" aria-hidden />
             {product.inStock ? "Add to Cart" : "Out of Stock"}

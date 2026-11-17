@@ -47,7 +47,11 @@ export default function ProductsSection() {
           </p>
         </div>
 
-        <ProductGrid products={FEATURED} className="mt-10 lg:grid-cols-4" />
+        <ProductGrid
+          products={FEATURED}
+          className="mt-10 lg:grid-cols-4"
+          compactMobile
+        />
 
         {/*
           Every size beyond the featured few lives on the full listing. Styled
